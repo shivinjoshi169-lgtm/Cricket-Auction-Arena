@@ -293,6 +293,54 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 .pl{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:var(--s1);border:1px solid var(--line);min-width:0}
 .pl .ov{font-family:var(--disp);font-size:26px;font-weight:800;color:var(--gold);width:40px;text-align:center;flex:none}
 .auc-name{display:block;font-family:var(--disp);font-size:21px;text-transform:uppercase;letter-spacing:.03em;margin:2px 0}
+/* ---------- v2: live room polish (inspired by reference) ---------- */
+.leader-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-weight:700;font-size:13px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#86efac;animation:lglow .4s ease}
+.leader-chip.me{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.5);color:var(--gold)}
+@keyframes lglow{from{box-shadow:0 0 0 transparent}to{box-shadow:0 0 18px rgba(34,197,94,.25)}}
+.sk-notice{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 14px;border-radius:12px;background:rgba(240,82,82,.07);border:1px solid rgba(240,82,82,.28);animation:tin .3s ease-out}
+.sk-notice b{color:#fca5a5}
+.sk-pulse{width:9px;height:9px;border-radius:50%;background:var(--bad);animation:pulse2 1s infinite;flex:none}
+@keyframes pulse2{50%{opacity:.35;transform:scale(.7)}}
+.mystat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.mystat>div{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center;min-width:0}
+.mystat b{display:block;font-family:var(--disp);font-size:22px;color:var(--gold)}
+.mystat span{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.bidlog{margin-top:14px}
+.bidlog-list{max-height:190px;overflow:auto}
+.log-e{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;animation:lslide .3s ease}
+.log-e b{font-family:var(--disp);font-size:18px}
+.log-e.mine b:first-child{color:var(--gold)}
+@keyframes lslide{from{opacity:0;transform:translateX(-6px)}}
+.slots-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin:2px 0 4px}
+.slots-track,.mini-bar{height:4px;background:var(--s3);border-radius:99px;overflow:hidden}
+.slots-track>i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--pri));transition:width .5s}
+.mini-bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--gold));transition:width .5s}
+.mini-bar>i.low{background:linear-gradient(90deg,var(--bad),var(--gold2))}
+.sq-tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:10px 2px 4px;font-weight:700}
+.sq-card{background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px;animation:tin .3s ease-out}
+.trow2{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--s2);margin-bottom:8px;transition:border-color .2s,box-shadow .2s}
+.trow2 .mini-bar{margin:7px 0 6px}
+.trow2.lead{border-color:rgba(251,191,36,.6);box-shadow:0 0 18px rgba(251,191,36,.18)}
+.trow2.me{border-color:rgba(34,197,94,.45)}
+.you-tag{font-size:10px;background:var(--ok);color:#04130a;padding:1px 6px;border-radius:999px;font-weight:800;letter-spacing:.04em;font-family:var(--body)}
+.lead-chip{font-size:11px;font-weight:700;color:var(--gold);background:rgba(251,191,36,.12);padding:1px 8px;border-radius:999px}
+.ov-chip{display:inline-flex;gap:6px;margin-top:12px;padding:7px 20px;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#86efac;font-family:var(--disp);font-size:20px;font-weight:700;letter-spacing:.04em;animation:tin .4s ease .25s both}
+body.sold-flash{box-shadow:inset 0 0 90px rgba(251,191,36,.16)}
+.ana-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.ana-card.best{border-color:rgba(251,191,36,.45)}
+.ana-badges{display:flex;gap:6px;flex-wrap:wrap}
+.ana-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
+.ana-num{font-family:var(--disp);font-size:44px;font-weight:800;color:var(--gold);line-height:1}
+.str{margin-top:9px}
+.str .lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:4px}
+.str i{display:block;height:6px;background:var(--s3);border-radius:9px;overflow:hidden}
+.str i>u{display:block;height:100%;border-radius:9px}
+.u-bat{background:linear-gradient(90deg,var(--bat),var(--pri))}.u-bowl{background:linear-gradient(90deg,var(--bowl),var(--gold2))}.u-field{background:linear-gradient(90deg,var(--wk),var(--ok))}.u-form{background:linear-gradient(90deg,var(--ar),var(--pri2))}
+.verdict{font-size:13px;color:var(--mut);line-height:1.6;padding:10px 12px;margin-top:12px;background:var(--s2);border-left:3px solid var(--pri);border-radius:10px}
+.sqd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.sqd-row{display:flex;gap:8px;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
+.res-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+@media(max-width:820px){.mystat{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -377,7 +425,9 @@ const MSG = {
   PURSE_RESERVE_REQUIRED: 'You must keep enough purse to complete all 16 slots.',
   ALREADY_SKIPPED: 'You already skipped this player.',
   CANNOT_SKIP_WHILE_HIGHEST_BIDDER: 'You cannot skip while you are the highest bidder.',
-  INVALID_REFERENCE: 'Something is out of sync. Reloading…'
+  INVALID_REFERENCE: 'Something is out of sync. Reloading…',
+  ONLY_HOST_CAN_FINISH: 'Only the host can finish the auction.',
+  FINISH_SINGLE_PLAYER_ONLY: 'Only single-player auctions can be finished early.'
 };
 
 let sb = null;
@@ -386,7 +436,7 @@ const S = {
   route: null, routeToken: 0, viewTimers: [], viewChannels: [], notifChannel: null,
   unread: 0, room: null, hb: null, ready: false, recovery: false, ovTimer: null
 };
-let PREFS = { reduceMotion: false, debug: false, haptics: true };
+let PREFS = { reduceMotion: false, debug: false, haptics: true, sound: true };
 try { Object.assign(PREFS, JSON.parse(localStorage.getItem('ca_prefs') || '{}')); } catch (e) { /* ignore bad prefs */ }
 function savePrefs() { try { localStorage.setItem('ca_prefs', JSON.stringify(PREFS)); } catch (e) { /* ignore */ } applyPrefs(); }
 function applyPrefs() { document.body.classList.toggle('reduce-motion', !!PREFS.reduceMotion); }
@@ -838,6 +888,7 @@ async function loadAuction(R) {
   R.skips = st.current_skips || [];
   R.squads = st.squads || [];
   R.results = st.results || [];
+  R.curBids = st.current_bids || []; R.bidlogFor = null;
 }
 function subscribeAuction(R) {
   const f = `auction_id=eq.${R.id}`;
@@ -959,23 +1010,49 @@ FORMS['team-edit'] = async d => {
   await reloadRoom();
 };
 
+/* ---------- SOUND (Web Audio — no audio files needed) ---------- */
+let _ac = null;
+function audioCtx() { if (!_ac) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { _ac = new C(); } catch (e) { return null; } } return _ac; }
+document.addEventListener('pointerdown', () => { if (!PREFS.sound) return; const c = audioCtx(); if (c && c.state === 'suspended') c.resume().catch(() => {}); }, { passive: true });
+function tone(freq, endFreq, dur, type, vol, delay) {
+  if (!PREFS.sound || document.visibilityState !== 'visible') return;
+  try {
+    const c = audioCtx(); if (!c || c.state !== 'running') return;
+    const t0 = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.connect(g); g.connect(c.destination);
+    o.frequency.setValueAtTime(freq, t0); if (endFreq) o.frequency.exponentialRampToValueAtTime(endFreq, t0 + dur);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch (e) { /* audio is optional */ }
+}
+const sfx = {
+  click: () => tone(880, 580, 0.09, 'sine', 0.07),
+  bid: () => tone(660, 990, 0.12, 'triangle', 0.05),
+  beep: () => tone(1100, 0, 0.08, 'sine', 0.04),
+  sold: () => { [220, 330, 440, 550].forEach((f, i) => tone(f, 0, 0.6, 'triangle', 0.05, i * 0.03)); tone(400, 880, 0.45, 'sine', 0.04, 0.1); },
+  unsold: () => tone(200, 100, 0.32, 'sawtooth', 0.045)
+};
+
 /* ---------- LIVE AUCTION ---------- */
 function renderLive() {
-  const R = S.room;
+  const R = S.room, A = R.auction, canFinish = A.mode === 'single_player' && A.host_id === S.session.user.id;
   setView(`<div class="live" data-tab="${R.tab}">
     <div class="live-head">
       <button class="btn btn-ghost btn-sm" data-action="nav" data-to="my-auctions" data-busy="no" aria-label="Back to My Auctions">←</button>
-      <div class="grow"><div class="row between"><span class="live-title ell">${esc(R.auction.name)}</span><span class="tiny mut" id="lv-count"></span></div><div class="prog" id="lv-prog" aria-hidden="true"><i></i></div></div>
+      <div class="grow"><div class="row between"><span class="live-title ell">${esc(A.name)}</span><span class="tiny mut" id="lv-count"></span></div><div class="prog" id="lv-prog" aria-hidden="true"><i></i></div></div>
+      ${canFinish ? '<button class="btn btn-bad btn-sm" data-action="finish-auction">🏁 Finish</button>' : ''}
       <span class="conn ${R.disconnected ? 'off' : ''}" id="lv-conn" title="Live connection" role="img" aria-label="Live connection status"></span>
     </div>
     <div class="live-grid">
       <section class="col-center" aria-label="Current player">
         <div class="stage" id="lv-stage"></div>
         <div class="actions" id="lv-actions"></div>
-        <div class="live-tabs" role="tablist">${[['team', 'My Team'], ['teams', 'Teams'], ['feed', 'Activity']].map(([k, l]) => `<button role="tab" data-action="live-tab" data-tab="${k}" data-busy="no" aria-selected="${R.tab === k}">${l}</button>`).join('')}</div>
+        <div class="mystat" id="lv-status"></div>
+        <div class="panel bidlog" id="lv-bidlog"></div>
+        <div class="live-tabs" role="tablist">${[['team', 'My Squad'], ['teams', 'Teams'], ['feed', 'Activity']].map(([k, l]) => `<button role="tab" data-action="live-tab" data-tab="${k}" data-busy="no" aria-selected="${R.tab === k}">${l}</button>`).join('')}</div>
       </section>
-      <aside class="col-left"><div class="panel tabp" data-p="team" id="lv-mine"></div><div class="panel tabp" data-p="teams" id="lv-teams"></div></aside>
-      <aside class="col-right"><div class="panel tabp" data-p="feed" id="lv-feed"></div><div class="panel tabp" data-p="feed" id="lv-next"></div></aside>
+      <aside class="col-left"><div class="panel tabp" data-p="team" id="lv-mine"></div></aside>
+      <aside class="col-right"><div class="panel tabp" data-p="teams" id="lv-teams"></div><div class="panel tabp" data-p="feed" id="lv-feed"></div><div class="panel tabp" data-p="feed" id="lv-next"></div></aside>
     </div></div>`);
   R.phase = null;
   renderLiveParts();
@@ -987,7 +1064,7 @@ function scheduleLive() {
 }
 function renderLiveParts() {
   const R = S.room; if (!R || R.rendered !== 'live') return;
-  renderStage(); renderActions(); renderMine(); renderTeams(); renderFeed(); renderNext(); renderProgress();
+  renderStage(); renderActions(); renderStatus(); renderBidLog(); renderMine(); renderTeams(); renderFeed(); renderNext(); renderProgress();
 }
 const rt = (label, v, big) => `<div class="rt ${big ? 'big' : ''}"><span>${label}</span><b>${v ?? '—'}</b><i><u style="width:${Math.max(0, Math.min(100, Number(v) || 0))}%"></u></i></div>`;
 function renderStage() {
@@ -1009,7 +1086,7 @@ function renderStage() {
       <div class="curbid ${R.flashBid ? 'flash' : ''}">
         <div class="lbl" id="lv-phase">Current bid</div>
         <div class="amt ${ap.current_bid_cr == null ? 'none' : ''}">${ap.current_bid_cr != null ? cr(ap.current_bid_cr) : 'No bids yet'}</div>
-        <div class="hb">${hi ? `Highest: <b class="${mine ? 'gold' : 'tx'}">${esc(hi.team_name)}${mine ? ' (You)' : ''}</b>` : `Opening bid ${cr(ap.base_price_cr)}`}</div>
+        <div class="hb">${hi ? `<span class="leader-chip ${mine ? 'me' : ''}">${mine ? '⭐ You are leading' : '🔥 ' + esc(hi.short_name || hi.team_name) + ' leading'}</span>` : `Opening bid ${cr(ap.base_price_cr)} · waiting for bids…`}</div>
       </div></div>`;
   R.flashBid = false;
   updateTimer();
@@ -1029,11 +1106,12 @@ function updateTimer() {
       num.textContent = String(Math.max(1, Math.ceil((s - now) / 1000)));
       ring.style.strokeDashoffset = '0'; tw.classList.add('brk'); tw.classList.remove('low'); ph.textContent = 'Bidding opens in';
     } else {
-      const total = Math.max(1, e - s), left = Math.min(total, Math.max(0, e - now));
-      num.textContent = String(Math.ceil(left / 1000));
+      const total = Math.max(1, e - s), left = Math.min(total, Math.max(0, e - now)), secs = Math.ceil(left / 1000);
+      num.textContent = String(secs);
       ring.style.strokeDashoffset = String(100 - (left / total) * 100);
       tw.classList.remove('brk'); tw.classList.toggle('low', left > 0 && left <= 5000);
       ph.textContent = phase === 'open' ? 'Current bid' : 'Time up — resolving…';
+      if (phase === 'open' && secs > 0 && secs <= 3) { if (secs !== R.lastBeep) { R.lastBeep = secs; sfx.beep(); } } else if (secs > 3) R.lastBeep = null;
     }
   }
   if (phase !== R.phase) { R.phase = phase; renderActions(); }
@@ -1048,25 +1126,54 @@ function renderActions() {
   const hasBid = ap.current_bid_cr !== null && ap.current_bid_cr !== undefined, start = n2(hasBid ? ap.current_bid_cr : ap.base_price_cr);
   const items = (hasBid ? [] : [{ amt: start, label: 'Bid ' + cr(start), sub: 'Base price', base: true }])
     .concat(BID_STEPS.map(s => ({ amt: n2(start + s), label: '+₹' + (s < 1 ? s.toFixed(2) : s) + ' Cr', sub: '→ ' + cr(start + s) })));
-  const opts = items.map(i => i.amt);
   const reserve = minPendingBase();
-  const btns = items.map(it => { const v = it.amt;
-    const why = blockReason(team, p.role, v, reserve);
+  const btns = items.map(it => {
+    const why = blockReason(team, p.role, it.amt, reserve);
     const dis = phase !== 'open' || skipped || highest || !!why || R.bidding;
-    return `<button class="btn ${it.base ? 'btn-pri qbase' : 'btn-gold'} qbid" data-action="bid" data-amount="${v}" ${dis ? 'disabled' : ''} aria-label="Bid ${cr(v)}"><span>${it.label}</span><small>${esc(it.sub)}</small></button>`;
+    return `<button class="btn ${it.base ? 'btn-pri qbase' : 'btn-gold'} qbid" data-action="bid" data-amount="${it.amt}" ${dis ? 'disabled' : ''} aria-label="Bid ${cr(it.amt)}"><span>${it.label}</span><small>${esc(it.sub)}</small></button>`;
   }).join('');
   let note = '';
   if (full) note = 'Your squad is complete (16/16).';
-  else if (skipped) note = 'You skipped this player — waiting for the result.';
+  else if (skipped) note = '';
   else if (highest) note = 'You are the highest bidder.';
-  /* no price cap: there is always a higher bid */
   else if (phase === 'break') note = 'Bidding opens in a moment.';
   else if (phase === 'closed') note = 'Time up — resolving…';
-  else { const why = blockReason(team, p.role, opts[0], reserve); if (why) note = MSG[why]; }
+  else { const why = blockReason(team, p.role, items[0].amt, reserve); if (why) note = MSG[why]; }
   const skipDis = skipped || highest || full || phase === 'closed';
   el.innerHTML = `<div class="qbids">${btns}</div>
     <div class="act-row"><div class="act-note" role="status">${esc(note)}</div>
-    <button class="btn btn-sm btn-ghost" data-action="skip" ${skipDis ? 'disabled' : ''}>${skipped ? 'Skipped' : 'Skip player'}</button></div>`;
+    <button class="btn btn-sm btn-bad" data-action="skip" ${skipDis ? 'disabled' : ''}>⏭ ${skipped ? 'Skipped' : 'Skip player'}</button></div>
+    ${skipped ? '<div class="sk-notice" role="status"><span aria-hidden="true">⏭</span><div class="grow"><b>You skipped this player</b><div class="tiny mut">Watching the other teams bid…</div></div><span class="sk-pulse" aria-hidden="true"></span></div>' : ''}`;
+}
+function renderStatus() {
+  const R = S.room, el = $('#lv-status'); if (!el) return;
+  const t = R.teams.get(R.myTeamId); if (!t) { el.innerHTML = ''; return; }
+  const max = Number(R.auction.max_player_price_cr) || 5;
+  const val = R.squads.filter(s => s.team_id === t.id).reduce((a, s) => { const p = S.players.get(s.player_id) || {}; return a + fairValue(p.overall_rating, p.base_price_cr, max); }, 0);
+  el.innerHTML = `<div><b>${cr(t.remaining_purse_cr)}</b><span>My purse</span></div><div><b>${t.squad_count}/16</b><span>Players</span></div><div><b>${cr(val)}</b><span>Squad value</span></div><div><b>${SQUAD_SIZE - Number(t.squad_count)}</b><span>Slots left</span></div>`;
+}
+/* Live bid log for the current player (seeded from the server on load / reconnect) */
+function ensureBidlog(ap) {
+  const R = S.room; if (!ap) return [];
+  if (R.bidlogFor !== ap.id) {
+    const seed = (R.curBids && !R.bidlogFor) ? R.curBids : [];
+    const total = Number(ap.bid_count) || 0;
+    R.bidlog = seed.map((b, i) => ({ n: total - i, team: b.team_id, amt: b.amount_cr }));
+    R.bidlogFor = ap.id; R.curBids = null;
+  }
+  return R.bidlog;
+}
+function addBidLog(ap, n, team, amt) {
+  const log = ensureBidlog(ap); n = Number(n);
+  if (!n || log.some(e => e.n === n)) return false;
+  log.unshift({ n, team, amt }); log.sort((a, b) => b.n - a.n); if (log.length > 25) log.length = 25;
+  return true;
+}
+function renderBidLog() {
+  const R = S.room, el = $('#lv-bidlog'); if (!el) return;
+  const ap = currentAp(), log = ensureBidlog(ap);
+  el.innerHTML = `<h3>Live bid log${ap ? ' · ' + esc((S.players.get(ap.player_id) || {}).player_name || '') : ''}</h3><div class="bidlog-list">${log.length ? log.map(e => { const tm = R.teams.get(e.team) || {}, mine = e.team === R.myTeamId;
+    return `<div class="log-e ${mine ? 'mine' : ''}"><b>${mine ? '⭐ You' : esc(tm.short_name || tm.team_name || 'Team')}</b><b>${cr(e.amt)}</b></div>`; }).join('') : '<div class="dim small">No bids yet on this player.</div>'}</div>`;
 }
 function roleChips(t) {
   return `<div class="rolechips">${ROLES.map(r => { const c = Number(t[r.key]) || 0; const cls = c < r.min ? 'need' : c >= r.max ? 'full' : 'okk';
@@ -1074,25 +1181,32 @@ function roleChips(t) {
 }
 function renderMine() {
   const R = S.room, el = $('#lv-mine'); if (!el) return;
-  const t = R.teams.get(R.myTeamId); if (!t) { el.innerHTML = '<h3>My team</h3><div class="dim small">You are watching this auction.</div>'; return; }
-  const sq = R.squads.filter(s => s.team_id === t.id);
+  const t = R.teams.get(R.myTeamId); if (!t) { el.innerHTML = '<h3>My squad</h3><div class="dim small">You are watching this auction.</div>'; return; }
+  const n = Number(t.squad_count) || 0;
+  const sq = R.squads.filter(s => s.team_id === t.id).map(s => ({ s, p: S.players.get(s.player_id) || {} }));
+  const groups = ROLES.map(r => ({ r, list: sq.filter(x => x.p.role === r.role) })).filter(g => g.list.length);
   const needs = ROLES.filter(r => (Number(t[r.key]) || 0) < r.min).map(r => `${r.min - (Number(t[r.key]) || 0)} ${r.short}`);
-  el.innerHTML = `<h3>My team</h3><div class="teamname">${esc(t.team_name)}</div>
-    <div class="kpis"><div><span>Purse left</span><b class="gold">${cr(t.remaining_purse_cr)}</b></div><div><span>Squad</span><b>${t.squad_count}/16</b></div></div>
-    ${roleChips(t)}
+  el.innerHTML = `<h3>My squad</h3><div class="teamname">${esc(t.team_name)}</div>
+    <div class="kpis"><div><span>Purse left</span><b class="gold">${cr(t.remaining_purse_cr)}</b></div><div><span>Spent</span><b>${cr(t.spent_cr)}</b></div></div>
+    <div class="slots-lbl"><span>${n} / 16 players</span><span>${SQUAD_SIZE - n} slots left</span></div><div class="slots-track"><i style="width:${n / SQUAD_SIZE * 100}%"></i></div>
+    <div style="margin-top:10px">${roleChips(t)}</div>
     <div class="tiny ${needs.length ? 'mut' : 'okc'}" style="margin-top:8px">${needs.length ? 'Still need: ' + needs.join(', ') : 'All role minimums met.'}</div>
-    <div class="mini-sq">${sq.length ? sq.map(s => { const p = S.players.get(s.player_id) || {}; const m = roleMeta(p.role);
-      return `<div class="ms"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span><b>${cr(s.purchase_price_cr)}</b></div>`; }).join('') : '<div class="dim small">No players bought yet.</div>'}</div>`;
+    <div class="mini-sq">${groups.length ? groups.map(g => `<div class="sq-tag">${g.r.role}s (${g.list.length})</div>` + g.list.map(x => `<div class="sq-card"><div class="row between"><b class="ell small">${esc(x.p.player_name)}</b><b class="gold small">${cr(x.s.purchase_price_cr)}</b></div><div class="tiny mut"><span class="r-${g.r.cls}">${g.r.short}</span> · OVR ${x.p.overall_rating ?? '—'} · ${esc(x.p.country || '')}</div></div>`).join('')).join('')
+      : '<div class="empty small" style="margin-top:10px">No players yet.<br>Win a bid to build your squad!</div>'}</div>`;
 }
 function renderTeams() {
   const R = S.room, el = $('#lv-teams'); if (!el) return;
   const ap = currentAp(), list = [...R.teams.values()].sort((a, b) => a.slot_number - b.slot_number);
-  el.innerHTML = `<h3>Teams</h3>${list.map(t => `<div class="trow ${ap && ap.highest_team_id === t.id ? 'lead' : ''} ${t.id === R.myTeamId ? 'me' : ''}"><span class="grow ell"><b>${esc(t.team_name)}</b>${t.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}</span><span class="tiny mut">${t.squad_count}/16</span><b class="small" style="min-width:86px;text-align:right">${cr(t.remaining_purse_cr)}</b></div>`).join('')}`;
+  el.innerHTML = `<h3>All teams — live</h3>${list.map(t => {
+    const lead = ap && ap.highest_team_id === t.id, me = t.id === R.myTeamId, sk = ap && R.skips.some(s => s.team_id === t.id), full = Number(t.squad_count) >= SQUAD_SIZE;
+    const pct = Math.max(0, Math.min(100, Number(t.remaining_purse_cr) / (Number(t.starting_purse_cr) || 100) * 100));
+    const chip = lead ? '<span class="lead-chip">🔥 LEADING</span>' : full ? '<span class="okc">16/16 ✓</span>' : sk ? '<span class="dim">skipped</span>' : '<span class="dim">watching</span>';
+    return `<div class="trow2 ${lead ? 'lead' : ''} ${me ? 'me' : ''}"><div class="row between"><b class="ell small">${esc(t.team_name)}${me ? ' <span class="you-tag">YOU</span>' : t.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}</b><b class="gold small">${cr(t.remaining_purse_cr)}</b></div><div class="mini-bar"><i class="${pct < 20 ? 'low' : ''}" style="width:${pct}%"></i></div><div class="row between tiny mut"><span>${t.squad_count}/16 players</span>${chip}</div></div>`; }).join('')}`;
 }
 function renderFeed() {
   const R = S.room, el = $('#lv-feed'); if (!el) return;
   const recent = [...R.aps.values()].filter(a => a.status === 'sold' || a.status === 'unsold').sort((a, b) => Date.parse(b.resolved_at) - Date.parse(a.resolved_at)).slice(0, 8);
-  el.innerHTML = `<h3>Live activity</h3><div class="feed">${R.feed.length ? R.feed.slice(0, 20).map(f => `<div class="fe">${f.html}</div>`).join('') : '<div class="dim small">Bids and skips appear here.</div>'}</div>
+  el.innerHTML = `<h3>Live activity</h3><div class="feed">${R.feed.length ? R.feed.slice(0, 20).map(f => `<div class="fe">${f.html}</div>`).join('') : '<div class="dim small">Bids, skips and results appear here.</div>'}</div>
     <h3 class="mt">Recent results</h3>${recent.length ? recent.map(a => { const p = S.players.get(a.player_id) || {}, tm = R.teams.get(a.sold_team_id), m = roleMeta(p.role);
       return `<div class="nx"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span>${a.status === 'sold' ? `<span class="tiny mut ell" style="max-width:90px">${esc((tm && (tm.short_name || tm.team_name)) || '')}</span><b class="gold">${cr(a.sold_price_cr)}</b>` : '<span class="dim tiny">UNSOLD</span>'}</div>`; }).join('') : '<div class="dim small">No results yet.</div>'}`;
 }
@@ -1113,10 +1227,14 @@ function showResultOverlay(row) {
   const p = S.players.get(row.player_id) || {}, tm = R.teams.get(row.sold_team_id), ov = $('#overlay');
   const mine = row.sold_team_id && row.sold_team_id === R.myTeamId;
   ov.innerHTML = row.status === 'sold'
-    ? `<div><div class="stamp">SOLD</div><div class="ov-name">${esc(p.player_name)}</div><div class="ov-sub">to <b class="${mine ? 'gold' : 'tx'}">${esc((tm && tm.team_name) || '')}${mine ? ' (You)' : ''}</b> for <b class="gold">${cr(row.sold_price_cr)}</b></div></div>`
+    ? `<div><div class="stamp">SOLD</div><div class="ov-name">${esc(p.player_name)}</div><div class="ov-sub">for <b class="gold">${cr(row.sold_price_cr)}</b></div><div class="ov-chip">🏆 TO ${esc((tm && tm.team_name) || '')}${mine ? ' (YOU)' : ''}</div></div>`
     : `<div><div class="stamp">UNSOLD</div><div class="ov-name">${esc(p.player_name)}</div><div class="ov-sub">No valid bids</div></div>`;
   ov.className = 'overlay show ' + row.status;
   clearTimeout(S.ovTimer); S.ovTimer = setTimeout(() => { ov.className = 'overlay'; }, PREFS.reduceMotion ? 1400 : 2300);
+  if (row.status === 'sold') {
+    sfx.sold();
+    if (!PREFS.reduceMotion) { document.body.classList.add('sold-flash'); setTimeout(() => document.body.classList.remove('sold-flash'), 700); }
+  } else sfx.unsold();
   if (mine && PREFS.haptics && navigator.vibrate) navigator.vibrate([30, 40, 30]);
 }
 /* Server is authoritative: the client only nudges the idempotent tick (also works without pg_cron). */
@@ -1148,9 +1266,14 @@ function onApRow(p) {
   if (R.rendered !== 'live') return;
   if (row.status === 'current') {
     if (R.auction.current_auction_player_id !== row.id) { R.auction.current_auction_player_id = row.id; R.skips = []; R.phase = null; }
-    if (old && Number(row.bid_count) > Number(old.bid_count || 0) && row.highest_team_id !== R.myTeamId) {
-      const tm = R.teams.get(row.highest_team_id);
-      pushFeed(`<b>${esc((tm && (tm.short_name || tm.team_name)) || 'A team')}</b> bid ${cr(row.current_bid_cr)}`);
+    const newBid = old && Number(row.bid_count) > Number(old.bid_count || 0);
+    if (newBid) {
+      const added = addBidLog(row, row.bid_count, row.highest_team_id, row.current_bid_cr);
+      if (row.highest_team_id !== R.myTeamId) {
+        const tm = R.teams.get(row.highest_team_id);
+        pushFeed(`<b>${esc((tm && (tm.short_name || tm.team_name)) || 'A team')}</b> bid ${cr(row.current_bid_cr)}`);
+        if (added) sfx.bid();
+      }
     }
     if (!old || Number(row.bid_count) !== Number(old.bid_count || 0)) R.flashBid = true;
     scheduleLive();
@@ -1186,12 +1309,14 @@ function onSkip(p) {
 ACTIONS.bid = async el => {
   const R = S.room, ap = currentAp(); if (!R || !ap || R.bidding) return;
   const amount = Number(el.dataset.amount);
+  sfx.click();
   R.bidding = true; $$('.qbid').forEach(b => { b.disabled = true; });
   try {
     const res = await rpc('place_bid', { p_auction_id: R.id, p_auction_player_id: ap.id, p_amount_cr: amount });
     if (res && res.ok) {
       const cur = R.aps.get(ap.id);
       if (cur && Number(res.bid_count) >= Number(cur.bid_count || 0)) R.aps.set(ap.id, Object.assign({}, cur, { current_bid_cr: res.current_bid_cr, highest_team_id: res.highest_team_id, bid_count: res.bid_count, last_bid_at: res.server_time, timer_started_at: res.timer_started_at || cur.timer_started_at, timer_ends_at: res.timer_ends_at || cur.timer_ends_at }));
+      addBidLog(R.aps.get(ap.id) || ap, res.bid_count, res.highest_team_id, res.current_bid_cr);
       pushFeed(`<b class="gold">You</b> bid ${cr(res.current_bid_cr)}`); R.flashBid = true;
       if (PREFS.haptics && navigator.vibrate) navigator.vibrate(18);
     } else toast(MSG[res && res.code] || 'Bid not accepted.', 'warn');
@@ -1205,6 +1330,15 @@ ACTIONS.skip = async () => {
   else toast(MSG[res && res.code] || 'Could not skip.', 'warn');
   scheduleLive();
 };
+ACTIONS['finish-auction'] = async () => {
+  if (!await confirmBox('End the auction now? All remaining players go unsold and final scores are calculated immediately.', 'End auction', true)) return;
+  try { await rpc('finish_auction', { p_auction_id: S.room.id }); }
+  catch (e) {
+    if (e && (e.code === 'PGRST202' || /finish_auction/.test(e.message || ''))) { toast('Finish needs patch v1.4 — run it once in the Supabase SQL Editor.', 'warn', 6000); return; }
+    throw e;
+  }
+  await reloadRoom();
+};
 ACTIONS['live-tab'] = el => {
   const R = S.room; if (!R) return; R.tab = el.dataset.tab;
   const lv = $('.live'); if (lv) lv.dataset.tab = R.tab;
@@ -1215,6 +1349,39 @@ ACTIONS['live-tab'] = el => {
 function scoreBars(r) {
   const rows = [['Squad Strength', r.squad_strength, 50], ['Squad Balance', r.squad_balance, 25], ['Value for Money', r.value_for_money, 15], ['Budget Management', r.budget_management, 10]];
   return `<div class="bars">${rows.map(([l, v, m]) => `<div class="bar"><span class="small">${l}</span><i><u style="width:${Math.max(0, Math.min(100, Number(v) / m * 100))}%"></u></i><b>${Number(v).toFixed(1)}/${m}</b></div>`).join('')}</div>`;
+}
+function analysisOf(teamId) {
+  const sq = S.room.squads.filter(s => s.team_id === teamId).map(s => S.players.get(s.player_id) || {});
+  const top = (k, n) => sq.map(p => Number(p[k]) || 0).sort((a, b) => b - a).slice(0, n).reduce((a, b) => a + b, 0) / n;
+  return { n: sq.length, bat: top('batting_rating', 7), bowl: top('bowling_rating', 6), field: top('fielding_rating', 11), form: top('current_form', SQUAD_SIZE) };
+}
+function verdictOf(r, a, t) {
+  if (!a.n) return 'This team bought no players, so there is nothing to analyse.';
+  const tot = Number(r.total_score), vfm = Number(r.value_for_money);
+  let v = tot >= 75 ? 'Outstanding auction. ' : tot >= 60 ? 'Solid, well-rounded auction. ' : tot >= 45 ? 'Decent but uneven auction. ' : 'A tough auction. ';
+  v += a.bat >= 85 ? 'Elite batting core. ' : a.bat >= 70 ? 'Competent batting. ' : 'Batting depth is a concern. ';
+  v += a.bowl >= 85 ? 'Dangerous bowling attack. ' : a.bowl >= 70 ? 'Adequate bowling. ' : 'Bowling looks thin. ';
+  v += vfm >= 11 ? 'Excellent value for money.' : vfm >= 7 ? 'Reasonable spending.' : 'Overpaid for some players.';
+  if (!r.squad_complete) v += ` Squad is incomplete (${t.squad_count}/16), so it ranks below complete squads.`;
+  return v;
+}
+function anaCard(x, res) {
+  const R = S.room, t = R.teams.get(x.team_id) || {}, a = analysisOf(x.team_id);
+  const complete = res.filter(r => r.squad_complete), worst = complete.length > 1 ? complete[complete.length - 1].team_id : null;
+  const badges = (x.is_winner ? '<span class="ana-badge gold">🏆 WINNER</span>' : '') + (x.team_id === worst && !x.is_winner ? '<span class="ana-badge badc">⚠ NEEDS WORK</span>' : '') + (x.team_id === R.myTeamId ? '<span class="ana-badge okc">YOU</span>' : '') + (t.team_type === 'bot' ? '<span class="ana-badge dim">BOT</span>' : '');
+  const bar = (l, v, cls) => `<div class="str"><div class="lbl">${l}<span>${v.toFixed(0)}/100</span></div><i><u class="${cls}" style="width:${Math.max(0, Math.min(100, v))}%"></u></i></div>`;
+  return `<div class="card ana-card ${x.is_winner ? 'best' : ''}"><div class="row between wrap-row"><b class="teamname" style="margin:0;font-size:20px">${esc(t.team_name)}</b><div class="ana-badges">${badges}</div></div>
+    <div class="row" style="align-items:baseline;gap:6px;margin:10px 0 4px"><span class="ana-num">${Number(x.total_score).toFixed(1)}</span><span class="mut">/100 · rank #${x.final_rank}</span></div>
+    ${bar('Batting core (top 7)', a.bat, 'u-bat')}${bar('Bowling attack (top 6)', a.bowl, 'u-bowl')}${bar('Fielding (top 11)', a.field, 'u-field')}${bar('Squad form', a.form, 'u-form')}
+    <div class="verdict">${esc(verdictOf(x, a, t))}</div></div>`;
+}
+function sqdCard(x) {
+  const R = S.room, t = R.teams.get(x.team_id) || {};
+  const ord = r => ROLES.findIndex(z => z.role === r);
+  const list = R.squads.filter(s => s.team_id === t.id).map(s => ({ s, p: S.players.get(s.player_id) || {} }))
+    .sort((a, b) => ord(a.p.role) - ord(b.p.role) || Number(b.s.purchase_price_cr) - Number(a.s.purchase_price_cr));
+  return `<div class="card"><div class="row between" style="margin-bottom:8px"><b class="ell">${esc(t.team_name)}${t.id === R.myTeamId ? ' <span class="you-tag">YOU</span>' : ''}</b><span class="small okc">${cr(t.remaining_purse_cr)} left</span></div>
+    ${list.length ? list.map(({ s, p }) => { const m = roleMeta(p.role); return `<div class="sqd-row"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span><b class="small gold">${cr(s.purchase_price_cr)}</b></div>`; }).join('') : '<div class="dim small">No players bought.</div>'}</div>`;
 }
 function renderResults() {
   const R = S.room, A = R.auction;
@@ -1241,9 +1408,17 @@ function renderResults() {
       ${res.map(x => { const tm = R.teams.get(x.team_id) || {};
         return `<div class="lbr ${x.final_rank === 1 ? 'first' : ''} ${x.team_id === R.myTeamId ? 'me' : ''}"><span class="rank">${x.final_rank}</span><span class="ell"><b>${esc(tm.team_name)}</b>${tm.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}${x.team_id === R.myTeamId ? ' <span class="tiny gold">YOU</span>' : ''}</span><span class="tot">${Number(x.total_score).toFixed(1)}</span><span class="c-extra">${Number(x.squad_strength).toFixed(1)}/50</span><span class="c-extra">${Number(x.squad_balance).toFixed(1)}/25</span><span class="c-extra">${Number(x.value_for_money).toFixed(1)}/15</span><span class="c-extra">${Number(x.budget_management).toFixed(1)}/10</span><span class="c-extra">${tm.squad_count ?? 0}/16</span></div>`; }).join('')}
     </div>
-    <h2 class="h2">Squads</h2>
+    <h2 class="h2">Team analysis</h2>
+    <div class="ana-grid">${res.map(x => anaCard(x, res)).join('')}</div>
+    <h2 class="h2">Team deep-dive</h2>
     <div class="chips" role="group" aria-label="Choose team">${res.map(x => { const tm = R.teams.get(x.team_id) || {}; return `<button class="chip" data-action="res-team" data-id="${x.team_id}" data-busy="no" aria-pressed="${R.view.team === x.team_id}">${esc(tm.short_name || tm.team_name)}</button>`; }).join('')}</div>
     <div id="res-team" class="mt"></div>
+    <h2 class="h2">Squad details</h2>
+    <div class="sqd-grid">${res.map(sqdCard).join('')}</div>
+    <div class="res-actions">
+      <button class="btn btn-pri" data-action="download-squad" data-busy="no">⬇ Download selected squad (JSON)</button>
+      <button class="btn btn-gold" data-action="nav" data-to="play" data-busy="no">🔄 Play again</button>
+    </div>
   </div>`);
   renderResTeam();
 }
@@ -1277,6 +1452,23 @@ function renderResTeam() {
 }
 ACTIONS['res-team'] = el => { S.room.view.team = el.dataset.id; $$('[data-action=res-team]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === el.dataset.id))); renderResTeam(); };
 ACTIONS['res-filter'] = el => { S.room.view.filter = el.dataset.f; renderResTeam(); };
+ACTIONS['download-squad'] = () => {
+  const R = S.room; if (!R || !R.view) return;
+  const t = R.teams.get(R.view.team); if (!t) return;
+  const r = R.results.find(x => x.team_id === t.id) || {};
+  const players = R.squads.filter(s => s.team_id === t.id).map(s => { const p = S.players.get(s.player_id) || {};
+    return { player_id: s.player_id, name: p.player_name, role: p.role, country: p.country, overall: p.overall_rating, batting: p.batting_rating, bowling: p.bowling_rating, fielding: p.fielding_rating, form: p.current_form, potential: p.potential, base_price_cr: Number(p.base_price_cr), price_paid_cr: Number(s.purchase_price_cr) }; });
+  const data = { game: 'Auction Arena', auction: R.auction.name, code: R.auction.code, completed_at: R.auction.completed_at,
+    team: t.team_name, short_name: t.short_name, manager: t.team_type === 'bot' ? 'BOT' : memberName(t.owner_user_id),
+    rank: r.final_rank, total_score: Number(r.total_score), squad_complete: !!r.squad_complete,
+    breakdown: { squad_strength: Number(r.squad_strength), squad_balance: Number(r.squad_balance), value_for_money: Number(r.value_for_money), budget_management: Number(r.budget_management) },
+    purse: { starting_cr: Number(t.starting_purse_cr), spent_cr: Number(t.spent_cr), remaining_cr: Number(t.remaining_purse_cr) },
+    players, exported_at: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = String(t.short_name || t.team_name).replace(/[^\w-]+/g, '_') + '_squad.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Squad downloaded.', 'ok');
+};
 
 /* ===================== FRIENDS ===================== */
 async function viewFriends(r, t) {
@@ -1412,7 +1604,7 @@ function viewSettings() {
   let host = ''; try { host = new URL(SUPABASE_URL).host; } catch (e) { host = SUPABASE_URL; }
   const tg = (key, title, sub) => `<label class="toggle"><span><b>${title}</b><div class="small mut">${sub}</div></span><input type="checkbox" data-change="pref" data-key="${key}" ${PREFS[key] ? 'checked' : ''}></label>`;
   setView(`<div class="wrap narrow"><h1 class="h1">Settings</h1>
-    <div class="card mt">${tg('reduceMotion', 'Reduce motion', 'Minimise animations, including SOLD / UNSOLD effects.')}${tg('haptics', 'Haptic feedback', 'Vibrate on bids and wins (supported phones).')}${tg('debug', 'Developer logs', 'Print debug information to the browser console.')}
+    <div class="card mt">${tg('sound', 'Sound effects', 'Bid clicks, last-3-second beeps and SOLD / UNSOLD sounds.')}${tg('reduceMotion', 'Reduce motion', 'Minimise animations, including SOLD / UNSOLD effects.')}${tg('haptics', 'Haptic feedback', 'Vibrate on bids and wins (supported phones).')}${tg('debug', 'Developer logs', 'Print debug information to the browser console.')}
       <div class="toggle" style="border:0;cursor:default"><span><b>Server</b><div class="small mut ell">${esc(host)}</div></span></div></div>
     <div class="card mt"><b>Game rules</b><ul class="small mut" style="margin:8px 0 0;padding-left:18px;line-height:1.8">
       <li>Every team starts with ₹100 Cr. There is no maximum price per player — only your purse limits your bid (you must keep enough to complete 16 players).</li>
@@ -1423,7 +1615,7 @@ function viewSettings() {
       <li>Final score (100): Strength 50 · Balance 25 · Value 15 · Budget 10. Complete squads rank first.</li></ul></div>
     <button class="btn btn-bad btn-block mt" data-action="logout">Log out</button></div>`);
 }
-CHANGES.pref = el => { PREFS[el.dataset.key] = el.checked; savePrefs(); toast('Setting saved.', 'ok', 1500); };
+CHANGES.pref = el => { PREFS[el.dataset.key] = el.checked; savePrefs(); if (el.dataset.key === 'sound' && el.checked) { const c = audioCtx(); if (c && c.state === 'suspended') c.resume().catch(() => {}); sfx.click(); } toast('Setting saved.', 'ok', 1500); };
 function viewNotFound() { setView(`<div class="wrap narrow"><div class="card center"><h1 class="h1">Page not found</h1><p class="mut">That screen doesn't exist.</p><button class="btn btn-pri" data-action="nav" data-to="home" data-busy="no">Go home</button></div></div>`); }
 function renderSetup(cdnFailed) {
   setView(`<div class="auth-wrap"><div class="card glow" style="max-width:620px"><div class="brand" style="cursor:default"><i>₹</i>Auction Arena</div>
