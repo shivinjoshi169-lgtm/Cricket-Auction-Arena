@@ -211,7 +211,7 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 .hb{font-size:15px;color:var(--mut)}
 .actions{margin-top:14px}
 .qbids{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.qbid{min-height:60px;font-family:var(--disp);font-size:24px;font-weight:800;letter-spacing:.02em}
+.qbid{min-height:60px;font-family:var(--disp);font-size:22px;font-weight:800;letter-spacing:.02em;flex-direction:column;gap:0;line-height:1.1;padding:8px 6px}.qbid small{font-family:var(--body);font-size:11px;font-weight:600;opacity:.75;letter-spacing:0}.qbase{grid-column:1/-1}
 .maxed{grid-column:1/-1;text-align:center;padding:16px;border-radius:12px;border:1px dashed var(--line2);color:var(--mut)}
 .act-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
 .act-note{font-size:13px;color:var(--mut);min-height:20px}
@@ -238,7 +238,7 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 .live-tabs{display:none}
 @media(max-width:1180px){.live-grid{grid-template-columns:minmax(0,1fr) 310px}.col-center{grid-column:1;grid-row:1/span 2}.col-left{grid-column:2;grid-row:1}.col-right{grid-column:2;grid-row:2}}
 @media(max-width:820px){
-  .live{padding:8px 10px 200px}
+  .live{padding:8px 10px 280px}
   .live-grid{grid-template-columns:1fr;gap:10px}
   .col-center,.col-left,.col-right{grid-column:1;grid-row:auto}
   .stage{border-radius:20px;min-height:0}
@@ -248,7 +248,7 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
   .bidzone{gap:14px;padding:12px;margin-top:12px}
   .timer{width:80px;height:80px}.tnum{font-size:32px}
   .actions{position:fixed;left:0;right:0;bottom:0;z-index:25;margin:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(8,12,22,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line2)}
-  .qbid{min-height:54px;font-size:21px}
+  .qbid{min-height:50px;font-size:19px}.qbids{gap:8px}
   .live-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
   .live-tabs button{min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--s1);color:var(--mut);font-weight:600;cursor:pointer}
   .live-tabs button[aria-selected=true]{color:var(--tx);border-color:rgba(251,191,36,.5);background:var(--s2)}
@@ -409,13 +409,14 @@ function timeAgo(ts) { const s = Math.max(0, (Date.now() - Date.parse(ts)) / 100
 function dateFmt(ts) { try { return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ''; } }
 function fairValue(overall, base, max) { const q = Math.min(Math.max((Number(overall) - 72) / 24, 0), 1); return n2(Number(base) + Math.max(Number(max) - Number(base), 0) * Math.pow(q, 1.6)); }
 
-/* LOCKED quick-bid rule — identical to app_private.quick_bid_options() in the database */
-function quickBidOptions(base, current, max) {
-  base = n2(base); max = n2(max);
+/* Bid rule — identical to app_private.quick_bid_options(): first bid = base (or base + step), then current + 0.25/0.50/0.75/1/2/5 Cr. No price cap. */
+const BID_STEPS = [0.25, 0.5, 0.75, 1, 2, 5];
+function quickBidOptions(base, current) {
+  base = n2(base);
   const has = current !== null && current !== undefined;
   const cur = has ? n2(current) : null;
-  const raw = has ? [cur + 0.25, cur + 0.5, cur + 1] : [base, base + 0.25, base + 0.5];
-  return [...new Set(raw.map(v => n2(Math.min(v, max))))].filter(v => !has || v > cur + 1e-9).sort((a, b) => a - b);
+  const raw = has ? BID_STEPS.map(s => cur + s) : [base, ...BID_STEPS.map(s => base + s)];
+  return [...new Set(raw.map(v => n2(v)))].sort((a, b) => a - b);
 }
 /* Mirror of app_private.team_acquire_block_reason() — used only to disable buttons; server decides. */
 function blockReason(team, role, price, reserve) {
@@ -688,7 +689,7 @@ async function viewHome(r, t) {
     <section class="card glow hero">
       <div class="kicker">Welcome, ${esc((S.profile && S.profile.display_name) || 'Player')}</div>
       <h1 class="hero-title">Bid smart.<br><span class="gold">Build the best 16.</span></h1>
-      <div class="facts"><span>₹100 Cr purse</span><span>₹5 Cr max per player</span><span>16-player squads</span><span>15-second lots</span></div>
+      <div class="facts"><span>₹100 Cr purse</span><span>No price cap</span><span>16-player squads</span><span>15-second lots</span></div>
       <button class="btn btn-gold btn-xl" data-action="nav" data-to="play" data-busy="no">▶ PLAY</button>
     </section>
     <div id="home-active"></div>
@@ -899,7 +900,7 @@ function renderLobby() {
       <div class="kicker">${multi ? 'Multiplayer lobby' : 'Single player'}</div>
       <h1 class="h1" style="margin:6px 0 12px">${esc(A.name)}</h1>
       ${multi ? `<div class="code-box"><div><div class="tiny mut">Auction code</div><div class="code" id="acode">${esc(A.code)}</div></div><button class="btn" data-action="copy-code" data-busy="no">Copy code</button></div>` : ''}
-      <div class="facts mt" style="margin-bottom:0"><span>${cr(A.starting_purse_cr)} purse</span><span>${cr(A.max_player_price_cr)} max per player</span><span>16 players</span><span>${A.human_players} human · ${bots} BOT</span></div>
+      <div class="facts mt" style="margin-bottom:0"><span>${cr(A.starting_purse_cr)} purse</span><span>No price cap</span><span>16 players</span><span>${A.human_players} human · ${bots} BOT</span></div>
     </div>
     <h2 class="h2">Teams · ${A.total_teams}</h2>
     <div class="slots">
@@ -1044,23 +1045,26 @@ function renderActions() {
   const p = S.players.get(ap.player_id) || {}, phase = phaseOf(ap);
   const skipped = R.skips.some(s => s.team_id === team.id), highest = ap.highest_team_id === team.id;
   const full = Number(team.squad_count) >= SQUAD_SIZE;
-  const opts = quickBidOptions(ap.base_price_cr, ap.current_bid_cr, R.auction.max_player_price_cr);
+  const hasBid = ap.current_bid_cr !== null && ap.current_bid_cr !== undefined, start = n2(hasBid ? ap.current_bid_cr : ap.base_price_cr);
+  const items = (hasBid ? [] : [{ amt: start, label: 'Bid ' + cr(start), sub: 'Base price', base: true }])
+    .concat(BID_STEPS.map(s => ({ amt: n2(start + s), label: '+₹' + (s < 1 ? s.toFixed(2) : s) + ' Cr', sub: '→ ' + cr(start + s) })));
+  const opts = items.map(i => i.amt);
   const reserve = minPendingBase();
-  const btns = opts.map(v => {
+  const btns = items.map(it => { const v = it.amt;
     const why = blockReason(team, p.role, v, reserve);
     const dis = phase !== 'open' || skipped || highest || !!why || R.bidding;
-    return `<button class="btn btn-gold qbid" data-action="bid" data-amount="${v}" ${dis ? 'disabled' : ''} aria-label="Bid ${cr(v)}">${cr(v)}</button>`;
+    return `<button class="btn ${it.base ? 'btn-pri qbase' : 'btn-gold'} qbid" data-action="bid" data-amount="${v}" ${dis ? 'disabled' : ''} aria-label="Bid ${cr(v)}"><span>${it.label}</span><small>${esc(it.sub)}</small></button>`;
   }).join('');
   let note = '';
   if (full) note = 'Your squad is complete (16/16).';
   else if (skipped) note = 'You skipped this player — waiting for the result.';
   else if (highest) note = 'You are the highest bidder.';
-  else if (!opts.length) note = 'Bid is at the ₹5.00 Cr ceiling.';
+  /* no price cap: there is always a higher bid */
   else if (phase === 'break') note = 'Bidding opens in a moment.';
   else if (phase === 'closed') note = 'Time up — resolving…';
   else { const why = blockReason(team, p.role, opts[0], reserve); if (why) note = MSG[why]; }
   const skipDis = skipped || highest || full || phase === 'closed';
-  el.innerHTML = `<div class="qbids">${btns || '<div class="maxed">₹5.00 Cr ceiling reached</div>'}</div>
+  el.innerHTML = `<div class="qbids">${btns}</div>
     <div class="act-row"><div class="act-note" role="status">${esc(note)}</div>
     <button class="btn btn-sm btn-ghost" data-action="skip" ${skipDis ? 'disabled' : ''}>${skipped ? 'Skipped' : 'Skip player'}</button></div>`;
 }
@@ -1411,10 +1415,10 @@ function viewSettings() {
     <div class="card mt">${tg('reduceMotion', 'Reduce motion', 'Minimise animations, including SOLD / UNSOLD effects.')}${tg('haptics', 'Haptic feedback', 'Vibrate on bids and wins (supported phones).')}${tg('debug', 'Developer logs', 'Print debug information to the browser console.')}
       <div class="toggle" style="border:0;cursor:default"><span><b>Server</b><div class="small mut ell">${esc(host)}</div></span></div></div>
     <div class="card mt"><b>Game rules</b><ul class="small mut" style="margin:8px 0 0;padding-left:18px;line-height:1.8">
-      <li>Every team starts with ₹100 Cr. No player can cost more than ₹5 Cr.</li>
+      <li>Every team starts with ₹100 Cr. There is no maximum price per player — only your purse limits your bid (you must keep enough to complete 16 players).</li>
       <li>Squads have exactly 16 players: WK 1–3, BAT 4–8, AR 2–6, BOWL 4–8.</li>
       <li>Each player starts with 15 seconds. Every successful bid resets the timer to 15 seconds.</li>
-      <li>Quick bids: first bid at base price (or +₹0.25 / +₹0.50), then +₹0.25, +₹0.50 or +₹1.00 Cr.</li>
+      <li>Quick bids: first bid at base price, then +₹0.25, +₹0.50, +₹0.75, +₹1, +₹2 or +₹5 Cr.</li>
       <li>Skipping a player removes only your team from that player's bidding.</li>
       <li>Final score (100): Strength 50 · Balance 25 · Value 15 · Budget 10. Complete squads rank first.</li></ul></div>
     <button class="btn btn-bad btn-block mt" data-action="logout">Log out</button></div>`);
