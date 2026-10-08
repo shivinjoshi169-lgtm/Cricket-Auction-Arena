@@ -1016,7 +1016,7 @@ function renderStage() {
 function phaseOf(ap) {
   if (!ap) return 'none';
   const now = serverNow(), s = Date.parse(ap.timer_started_at), e = Date.parse(ap.timer_ends_at);
-  return now < s ? 'break' : now < e ? 'open' : 'closed';
+  return (now < s && !(Number(ap.bid_count) > 0)) ? 'break' : now < e ? 'open' : 'closed';
 }
 function updateTimer() {
   const R = S.room; if (!R || R.rendered !== 'live') return;
@@ -1028,9 +1028,9 @@ function updateTimer() {
       num.textContent = String(Math.max(1, Math.ceil((s - now) / 1000)));
       ring.style.strokeDashoffset = '0'; tw.classList.add('brk'); tw.classList.remove('low'); ph.textContent = 'Bidding opens in';
     } else {
-      const left = Math.max(0, e - now);
+      const total = Math.max(1, e - s), left = Math.min(total, Math.max(0, e - now));
       num.textContent = String(Math.ceil(left / 1000));
-      ring.style.strokeDashoffset = String(100 - (left / Math.max(1, e - s)) * 100);
+      ring.style.strokeDashoffset = String(100 - (left / total) * 100);
       tw.classList.remove('brk'); tw.classList.toggle('low', left > 0 && left <= 5000);
       ph.textContent = phase === 'open' ? 'Current bid' : 'Time up — resolving…';
     }
@@ -1187,7 +1187,7 @@ ACTIONS.bid = async el => {
     const res = await rpc('place_bid', { p_auction_id: R.id, p_auction_player_id: ap.id, p_amount_cr: amount });
     if (res && res.ok) {
       const cur = R.aps.get(ap.id);
-      if (cur && Number(res.bid_count) >= Number(cur.bid_count || 0)) R.aps.set(ap.id, Object.assign({}, cur, { current_bid_cr: res.current_bid_cr, highest_team_id: res.highest_team_id, bid_count: res.bid_count, last_bid_at: res.server_time }));
+      if (cur && Number(res.bid_count) >= Number(cur.bid_count || 0)) R.aps.set(ap.id, Object.assign({}, cur, { current_bid_cr: res.current_bid_cr, highest_team_id: res.highest_team_id, bid_count: res.bid_count, last_bid_at: res.server_time, timer_started_at: res.timer_started_at || cur.timer_started_at, timer_ends_at: res.timer_ends_at || cur.timer_ends_at }));
       pushFeed(`<b class="gold">You</b> bid ${cr(res.current_bid_cr)}`); R.flashBid = true;
       if (PREFS.haptics && navigator.vibrate) navigator.vibrate(18);
     } else toast(MSG[res && res.code] || 'Bid not accepted.', 'warn');
@@ -1413,7 +1413,7 @@ function viewSettings() {
     <div class="card mt"><b>Game rules</b><ul class="small mut" style="margin:8px 0 0;padding-left:18px;line-height:1.8">
       <li>Every team starts with ₹100 Cr. No player can cost more than ₹5 Cr.</li>
       <li>Squads have exactly 16 players: WK 1–3, BAT 4–8, AR 2–6, BOWL 4–8.</li>
-      <li>Each player gets 15 seconds. Bids do not reset the timer.</li>
+      <li>Each player starts with 15 seconds. Every successful bid resets the timer to 15 seconds.</li>
       <li>Quick bids: first bid at base price (or +₹0.25 / +₹0.50), then +₹0.25, +₹0.50 or +₹1.00 Cr.</li>
       <li>Skipping a player removes only your team from that player's bidding.</li>
       <li>Final score (100): Strength 50 · Balance 25 · Value 15 · Budget 10. Complete squads rank first.</li></ul></div>
