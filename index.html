@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a13">
+<meta name="description" content="Premium cricket player auction game. Bid, build a 16-player squad, win.">
+<title>Auction Arena · Cricket Player Auction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#060a13;--s1:#0d1424;--s2:#131c33;--s3:#1b2644;
+  --line:rgba(148,163,210,.13);--line2:rgba(148,163,210,.26);
+  --tx:#eef2fb;--mut:#97a3c0;--dim:#67738f;
+  --pri:#3b82f6;--pri2:#8db8ff;--gold:#fbbf24;--gold2:#f59e0b;
+  --ok:#22c55e;--bad:#f05252;--warn:#f59e0b;
+  --wk:#2dd4bf;--bat:#60a5fa;--ar:#c084fc;--bowl:#fb923c;
+  --r:14px;--r2:20px;
+  --disp:'Barlow Condensed',Impact,'Arial Narrow',system-ui,sans-serif;
+  --body:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--tx);font:15px/1.5 var(--body);background:radial-gradient(1100px 600px at 85% -10%,rgba(59,130,246,.14),transparent 60%),radial-gradient(800px 480px at -10% 0,rgba(251,191,36,.07),transparent 55%),var(--bg);background-attachment:fixed;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--pri2);text-decoration:none}a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:100;background:var(--gold);color:#111;padding:8px 12px;border-radius:8px}
+.skip-link:focus{left:8px}
+main:focus{outline:none}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 110px}
+.narrow{max-width:680px}
+h1,h2,h3{margin:0;font-family:var(--disp);letter-spacing:.02em;line-height:1.05;font-weight:800}
+.h1{font-size:clamp(32px,5vw,44px);text-transform:uppercase}
+.h2{font-size:22px;text-transform:uppercase;margin:28px 0 12px;letter-spacing:.06em}
+.kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.mut{color:var(--mut)}.dim{color:var(--dim)}.gold{color:var(--gold)}.okc{color:var(--ok)}.badc{color:#fca5a5}.tx{color:var(--tx)}
+.small{font-size:13px}.tiny{font-size:12px}.center{text-align:center}
+.mt{margin-top:16px}.mt8{margin-top:8px}.mb{margin-bottom:16px}
+.row{display:flex;gap:10px;align-items:center}.wrap-row{flex-wrap:wrap}.between{justify-content:space-between}.end{justify-content:flex-end}.gap6{gap:6px}
+.grow{flex:1;min-width:0}.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01)),var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:18px}
+.glow{box-shadow:0 0 0 1px rgba(251,191,36,.07),0 24px 60px -24px rgba(59,130,246,.45)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;border:1px solid var(--line2);background:var(--s2);color:var(--tx);font-weight:600;cursor:pointer;transition:transform .12s,background .15s,border-color .15s,opacity .15s;white-space:nowrap;user-select:none;text-decoration:none}
+.btn:hover{background:var(--s3);text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.42;cursor:not-allowed;transform:none}
+.btn.busy{opacity:.7;pointer-events:none}
+.btn.busy::after{content:'';width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.btn-pri{background:linear-gradient(180deg,#4f8ff7,#2f6fe0);border-color:transparent;color:#fff}
+.btn-pri:hover{background:linear-gradient(180deg,#609bff,#3a7af0)}
+.btn-gold{background:linear-gradient(180deg,#fcd34d,#f59e0b);border-color:transparent;color:#1a1204;font-weight:800}
+.btn-gold:hover{background:linear-gradient(180deg,#fde68a,#fbbf24)}
+.btn-ghost{background:transparent}
+.btn-bad{background:rgba(240,82,82,.1);border-color:rgba(240,82,82,.4);color:#fca5a5}
+.btn-sm{min-height:36px;padding:6px 12px;font-size:13px;border-radius:10px}
+.btn-xl{min-height:62px;padding:14px 38px;font-size:24px;font-family:var(--disp);letter-spacing:.1em;border-radius:16px}
+.btn-block{width:100%}
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:13px;color:var(--mut);margin-bottom:6px;font-weight:500}
+.input{width:100%;min-height:46px;padding:10px 14px;background:#070c18;border:1px solid var(--line2);border-radius:12px;outline:none;transition:border-color .15s,box-shadow .15s}
+.input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(59,130,246,.22)}
+select.input{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.hint{font-size:12px;color:var(--dim);margin-top:5px}
+.form-err{color:#fecaca;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.35);padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:14px}
+.form-err:empty{display:none}
+.form-ok{color:#bbf7d0;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.35);padding:12px;border-radius:10px}
+.badge{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;line-height:1.7;white-space:nowrap}
+.r-wk{color:var(--wk)}.r-bat{color:var(--bat)}.r-ar{color:var(--ar)}.r-bowl{color:var(--bowl)}
+.t-elite{color:var(--gold)}.t-star{color:#f472b6}.t-strong{color:var(--pri2)}.t-emerging{color:var(--ok)}.t-prospect{color:var(--mut)}
+.pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--s3);color:var(--mut);white-space:nowrap}
+.st-live{background:rgba(34,197,94,.15);color:#86efac}.st-lobby{background:rgba(59,130,246,.15);color:var(--pri2)}.st-completed{background:rgba(251,191,36,.14);color:var(--gold)}.st-cancelled{background:rgba(240,82,82,.12);color:#fca5a5}
+.list>*+*{margin-top:10px}
+.item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.item.unread{border-color:rgba(251,191,36,.4)}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--s3);flex:none;position:relative;font-family:var(--disp);font-size:18px;color:var(--tx)}
+.av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.av.lg{width:72px;height:72px;font-size:30px}
+.dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;border:2px solid var(--s1);background:var(--dim)}
+.dot.on{background:var(--ok)}
+.empty{text-align:center;padding:26px 16px;color:var(--mut);border:1px dashed var(--line2);border-radius:var(--r)}
+.spinner{width:30px;height:30px;border:3px solid var(--line2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.loading{padding:70px 16px;text-align:center;color:var(--mut)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- top bar / bottom nav ---------- */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 18px;background:rgba(6,10,19,.84);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:800;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx);cursor:pointer;background:none;border:0;padding:0}
+.brand i{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;font-style:normal;color:#1a1204;font-size:17px;box-shadow:0 6px 18px -6px rgba(251,191,36,.6)}
+.topnav{display:flex;gap:2px;margin-left:14px}
+.topnav button{background:none;border:0;padding:8px 12px;border-radius:10px;color:var(--mut);font-weight:600;cursor:pointer}
+.topnav button:hover{color:var(--tx)}
+.topnav button[aria-current=page]{color:var(--tx);background:var(--s2)}
+.topnav .ic{display:none}
+.top-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.icon-btn{position:relative;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--s1);display:grid;place-items:center;cursor:pointer;font-size:18px;padding:0}
+.icon-btn .av{width:30px;height:30px;font-size:14px}
+.count{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.count:empty{display:none}
+.botnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;grid-template-columns:repeat(5,1fr);padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:rgba(8,12,22,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.botnav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;border-radius:10px;min-height:48px}
+.botnav .ic{font-size:19px;line-height:1.2}
+.botnav button[aria-current=page]{color:var(--gold)}
+@media(max-width:820px){.topnav{display:none}.botnav{display:grid}.topbar{padding:8px 12px}.brand .full{display:none}}
+body.in-live .botnav{display:none!important}
+
+/* ---------- toasts / overlay / modal ---------- */
+.toasts{position:fixed;z-index:70;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;width:min(380px,calc(100vw - 32px));pointer-events:none}
+@media(max-width:820px){.toasts{left:12px;right:12px;width:auto;bottom:auto;top:64px}}
+.toast{pointer-events:auto;padding:12px 14px;border-radius:12px;background:var(--s2);border:1px solid var(--line2);box-shadow:0 14px 34px rgba(0,0,0,.45);font-size:14px;animation:tin .22s ease-out}
+.toast.ok{border-color:rgba(34,197,94,.5)}.toast.error{border-color:rgba(240,82,82,.55)}.toast.warn{border-color:rgba(245,158,11,.55)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}}
+.overlay{position:fixed;inset:0;z-index:55;display:grid;place-content:center;text-align:center;padding:20px;pointer-events:none;opacity:0;transition:opacity .2s;background:radial-gradient(circle at center,rgba(6,10,19,.82),rgba(6,10,19,.45))}
+.overlay.show{opacity:1}
+.stamp{display:inline-block;font-family:var(--disp);font-weight:800;font-size:clamp(64px,15vw,150px);letter-spacing:.08em;line-height:1;transform:rotate(-6deg);padding:4px 28px;border:6px solid currentColor;border-radius:18px;margin:0 auto 18px;animation:stamp .45s cubic-bezier(.2,1.5,.4,1)}
+.overlay.sold .stamp{color:var(--gold);text-shadow:0 0 40px rgba(251,191,36,.55)}
+.overlay.unsold .stamp{color:#94a3b8}
+.ov-name{font-family:var(--disp);font-size:clamp(28px,5vw,46px);font-weight:800;text-transform:uppercase}
+.ov-sub{color:var(--mut);font-size:18px}
+@keyframes stamp{from{transform:rotate(-6deg) scale(2.2);opacity:0}}
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px;background:rgba(3,6,12,.7)}
+.modal-card{max-width:420px;width:100%}
+body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{animation:none!important;transition:none!important}
+
+/* ---------- auth / home / play ---------- */
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:28px 16px}
+.auth-card{width:100%;max-width:420px}
+.auth-brand{text-align:center;margin-bottom:20px}
+.auth-brand .brand{justify-content:center;font-size:30px;margin:0 auto 6px;cursor:default}
+.auth-links{display:flex;justify-content:space-between;gap:10px;margin-top:14px;font-size:14px}
+.hero{position:relative;overflow:hidden;padding:clamp(24px,5vw,44px);border-radius:26px}
+.hero::after{content:'';position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.22),transparent 65%);pointer-events:none}
+.hero-title{font-size:clamp(40px,7.5vw,72px);text-transform:uppercase;margin:8px 0 12px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.facts span{padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:13px;color:var(--mut)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+@media(max-width:820px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{text-align:left;cursor:pointer;padding:18px;border-radius:18px;background:var(--s1);border:1px solid var(--line);color:var(--tx);transition:transform .15s,border-color .15s}
+.tile:hover{transform:translateY(-2px);border-color:var(--line2)}
+.tile .ic{font-size:26px}
+.tile b{display:block;font-family:var(--disp);font-size:21px;text-transform:uppercase;margin-top:8px;letter-spacing:.04em}
+.tile small{color:var(--mut)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+@media(max-width:700px){.choice{grid-template-columns:1fr}}
+.choice-card{text-align:left;cursor:pointer;padding:26px;border-radius:22px;border:1px solid var(--line2);color:var(--tx);background:radial-gradient(400px 200px at 100% 0,rgba(59,130,246,.18),transparent 60%),var(--s1);transition:transform .15s,border-color .15s}
+.choice-card:hover{transform:translateY(-3px);border-color:rgba(251,191,36,.45)}
+.choice-card .ic{font-size:34px}
+.choice-card h2{font-size:30px;text-transform:uppercase;margin:12px 0 6px}
+.choice-card p{margin:0;color:var(--mut)}
+.check{cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--gold);flex:none}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.toggle input{width:22px;height:22px;accent-color:var(--gold);flex:none}
+
+/* ---------- lobby ---------- */
+.code-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.code{font-family:var(--disp);font-size:clamp(38px,8vw,54px);font-weight:800;letter-spacing:.22em;color:var(--gold);line-height:1}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.slot{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--s1);border:1px solid var(--line);min-width:0}
+.slot.me{border-color:rgba(251,191,36,.45)}
+.slot.empty-slot,.slot.bot{border-style:dashed;opacity:.8}
+.slot b{display:block;font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.03em}
+.ready{color:var(--ok);font-weight:700;font-size:12px}.notready{color:var(--warn);font-weight:700;font-size:12px}
+
+/* ---------- live auction ---------- */
+.live{max-width:1340px;margin:0 auto;padding:12px 14px 30px}
+.live-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.live-title{font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.05em}
+.prog{height:6px;background:var(--s2);border-radius:99px;overflow:hidden;margin-top:6px}
+.prog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pri),var(--gold));transition:width .4s}
+.conn{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);flex:none}
+.conn.off{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.live-grid{display:grid;grid-template-columns:290px minmax(0,1fr) 310px;gap:14px;align-items:start}
+.col-left,.col-right{display:flex;flex-direction:column;gap:14px;min-width:0}
+.col-center{min-width:0}
+.panel{background:var(--s1);border:1px solid var(--line);border-radius:18px;padding:14px;min-width:0}
+.panel h3{font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--mut);margin-bottom:10px;font-family:var(--body);font-weight:700}
+.stage{position:relative;overflow:hidden;border-radius:24px;padding:clamp(16px,2.4vw,26px);background:radial-gradient(700px 320px at 20% -10%,rgba(59,130,246,.22),transparent 60%),radial-gradient(400px 260px at 110% 110%,rgba(251,191,36,.1),transparent 60%),linear-gradient(180deg,#111a31,#0a1121);border:1px solid var(--line2);min-height:300px}
+.pcard{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.pavatar{width:100px;height:100px;border-radius:26px;display:grid;place-items:center;font-family:var(--disp);font-size:42px;font-weight:800;background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.02));border:2px solid currentColor}
+.pname{font-size:clamp(30px,4.4vw,52px);text-transform:uppercase;margin:6px 0 4px;color:var(--tx);overflow-wrap:anywhere}
+.ratings{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px}
+.rt{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0}
+.rt span{display:block;font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt b{display:block;font-family:var(--disp);font-size:26px;line-height:1.1}
+.rt.big b{color:var(--gold)}
+.rt i{display:block;height:4px;border-radius:9px;background:var(--s3);margin-top:4px;overflow:hidden}
+.rt i>u{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--pri2))}
+.rt.big i>u{background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.bidzone{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin-top:18px;padding:16px 18px;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
+.timer{position:relative;width:104px;height:104px;flex:none}
+.timer svg{transform:rotate(-90deg);display:block}
+.t-bg{fill:none;stroke:var(--s3);stroke-width:8}
+.t-fg{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .1s linear,stroke .2s}
+.timer.low .t-fg{stroke:var(--bad)}
+.timer.brk .t-fg{stroke:var(--pri)}
+.tnum{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--disp);font-size:42px;font-weight:800}
+.timer.low .tnum{color:var(--bad);animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+.curbid .lbl{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.curbid .amt{font-family:var(--disp);font-size:clamp(40px,6vw,64px);font-weight:800;color:var(--gold);line-height:1;margin:2px 0}
+.curbid .amt.none{color:var(--mut);font-size:clamp(30px,4vw,40px)}
+.curbid.flash .amt{animation:flash .55s ease-out}
+@keyframes flash{0%{transform:scale(1.14);text-shadow:0 0 34px rgba(251,191,36,.8)}}
+.hb{font-size:15px;color:var(--mut)}
+.actions{margin-top:14px}
+.qbids{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qbid{min-height:60px;font-family:var(--disp);font-size:24px;font-weight:800;letter-spacing:.02em}
+.maxed{grid-column:1/-1;text-align:center;padding:16px;border-radius:12px;border:1px dashed var(--line2);color:var(--mut)}
+.act-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.act-note{font-size:13px;color:var(--mut);min-height:20px}
+.teamname{font-family:var(--disp);font-size:24px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.kpis>div{background:var(--s2);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.kpis span{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.kpis b{font-family:var(--disp);font-size:24px}
+.rolechips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rc{text-align:center;padding:7px 2px;border-radius:10px;background:var(--s2);border:1px solid var(--line)}
+.rc b{display:block;font-family:var(--disp);font-size:22px;line-height:1.1}
+.rc small{display:block;font-size:10px;color:var(--mut);letter-spacing:.06em}
+.rc.need{border-color:rgba(245,158,11,.65)}.rc.need b{color:var(--warn)}
+.rc.okk{border-color:rgba(34,197,94,.5)}
+.rc.full{opacity:.7}
+.mini-sq{margin-top:10px;max-height:260px;overflow:auto}
+.ms,.nx{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:10px;font-size:14px}
+.trow.lead{background:rgba(251,191,36,.08);outline:1px solid rgba(251,191,36,.35)}
+.trow.me b{color:var(--gold)}
+.feed{max-height:300px;overflow:auto}
+.fe{font-size:13px;padding:7px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+.fe b{color:var(--tx)}
+.live-tabs{display:none}
+@media(max-width:1180px){.live-grid{grid-template-columns:minmax(0,1fr) 310px}.col-center{grid-column:1;grid-row:1/span 2}.col-left{grid-column:2;grid-row:1}.col-right{grid-column:2;grid-row:2}}
+@media(max-width:820px){
+  .live{padding:8px 10px 200px}
+  .live-grid{grid-template-columns:1fr;gap:10px}
+  .col-center,.col-left,.col-right{grid-column:1;grid-row:auto}
+  .stage{border-radius:20px;min-height:0}
+  .pcard{gap:12px}.pavatar{width:62px;height:62px;border-radius:18px;font-size:26px}
+  .ratings{grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+  .rt b{font-size:22px}
+  .bidzone{gap:14px;padding:12px;margin-top:12px}
+  .timer{width:80px;height:80px}.tnum{font-size:32px}
+  .actions{position:fixed;left:0;right:0;bottom:0;z-index:25;margin:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(8,12,22,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line2)}
+  .qbid{min-height:54px;font-size:21px}
+  .live-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+  .live-tabs button{min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--s1);color:var(--mut);font-weight:600;cursor:pointer}
+  .live-tabs button[aria-selected=true]{color:var(--tx);border-color:rgba(251,191,36,.5);background:var(--s2)}
+  .tabp{display:none}
+  .live[data-tab=team] .tabp[data-p=team],.live[data-tab=teams] .tabp[data-p=teams],.live[data-tab=feed] .tabp[data-p=feed]{display:block}
+  .feed{max-height:none}
+}
+
+/* ---------- results ---------- */
+.winner{text-align:center;padding:clamp(26px,5vw,44px);position:relative;overflow:hidden;border-radius:26px}
+.winner .trophy{font-size:54px}
+.winner h1{font-size:clamp(36px,7vw,64px);text-transform:uppercase;margin:6px 0;overflow-wrap:anywhere}
+.score-big{font-family:var(--disp);font-size:44px;font-weight:800;color:var(--gold)}
+.bars{display:grid;gap:8px;margin-top:12px}
+.bar{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:13px}
+.bar i{display:block;height:8px;background:var(--s3);border-radius:9px;overflow:hidden}
+.bar i>u{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--gold))}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.bar{grid-template-columns:110px 1fr 62px}}
+.lb{display:grid;gap:8px}
+.lbr{display:grid;grid-template-columns:44px minmax(0,1.6fr) 80px repeat(4,minmax(0,1fr)) 64px;gap:10px;align-items:center;padding:12px 14px;background:var(--s1);border:1px solid var(--line);border-radius:14px;font-size:14px}
+.lbr.head{background:none;border:0;padding:0 14px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.lbr.me{border-color:rgba(251,191,36,.45)}
+.rank{font-family:var(--disp);font-size:26px;font-weight:800;color:var(--mut)}
+.lbr.first .rank{color:var(--gold)}
+.tot{font-family:var(--disp);font-size:24px;font-weight:800}
+@media(max-width:820px){.lbr{grid-template-columns:40px minmax(0,1fr) auto}.lbr.head{display:none}.lbr .c-extra{display:none}}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line2);background:var(--s1);color:var(--mut);font-weight:600;cursor:pointer;font-size:14px}
+.chip[aria-pressed=true]{background:var(--gold);color:#1a1204;border-color:transparent}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.stat span{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.stat b{font-family:var(--disp);font-size:26px}
+.hls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:700px){.hls{grid-template-columns:1fr}}
+.hl{padding:14px;border-radius:14px;background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(59,130,246,.06));border:1px solid var(--line2);min-width:0}
+.hl span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.hl b{display:block;font-family:var(--disp);font-size:22px;text-transform:uppercase;margin-top:4px}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.pl{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:var(--s1);border:1px solid var(--line);min-width:0}
+.pl .ov{font-family:var(--disp);font-size:26px;font-weight:800;color:var(--gold);width:40px;text-align:center;flex:none}
+.auc-name{display:block;font-family:var(--disp);font-size:21px;text-transform:uppercase;letter-spacing:.03em;margin:2px 0}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#view">Skip to content</a>
+<header id="topbar" class="topbar" hidden></header>
+<main id="view" tabindex="-1"></main>
+<nav id="botnav" class="botnav" hidden aria-label="Primary"></nav>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<div id="overlay" class="overlay" aria-live="assertive"></div>
+<div id="modal" class="modal" hidden></div>
+
+<script>
+'use strict';
+/* ===================== CONFIGURATION — EDIT ONLY THESE TWO VALUES ===================== */
+const SUPABASE_URL = 'https://freyacmeobmwhgeqisxd.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_AJGlnrrUad7ajlzJy_CTdg_eo1W74Ys';
+/* Use the Project URL and the PUBLISHABLE (or legacy anon) key. NEVER the secret/service_role key. */
+/* ===================================================================================== */
+
+const CONFIGURED = /^https?:\/\//.test(SUPABASE_URL) && !SUPABASE_URL.includes('YOUR-PROJECT') &&
+  SUPABASE_PUBLISHABLE_KEY.length > 20 && !SUPABASE_PUBLISHABLE_KEY.startsWith('YOUR-');
+const SQUAD_SIZE = 16;
+const ROLES = [
+  { role: 'Wicketkeeper', short: 'WK',   key: 'wk_count',   min: 1, max: 3, cls: 'wk' },
+  { role: 'Batter',       short: 'BAT',  key: 'bat_count',  min: 4, max: 8, cls: 'bat' },
+  { role: 'All-rounder',  short: 'AR',   key: 'ar_count',   min: 2, max: 6, cls: 'ar' },
+  { role: 'Bowler',       short: 'BOWL', key: 'bowl_count', min: 4, max: 8, cls: 'bowl' }
+];
+const TIER = { elite: 'Elite', star: 'Star', strong: 'Strong', emerging: 'Emerging', prospect: 'Prospect' };
+const MSG = {
+  NOT_AUTHENTICATED: 'Please log in again.',
+  AUCTION_NOT_FOUND: 'Auction not found. Check the code and try again.',
+  AUCTION_FULL: 'This auction is full.',
+  AUCTION_ALREADY_STARTED: 'This auction has already started. New players cannot join.',
+  AUCTION_NOT_JOINABLE: 'This auction cannot be joined.',
+  AUCTION_NOT_IN_LOBBY: 'The auction is no longer in the lobby.',
+  TEAM_NAME_TAKEN: 'That team name (or short name) is already used in this auction.',
+  TEAM_NAME_LOCKED: 'Team names are locked once the auction starts.',
+  INVALID_TEAM_NAME: 'Team name must be 2–30 characters.',
+  INVALID_SHORT_NAME: 'Short name must be 2–5 letters or digits (e.g. MUM).',
+  INVALID_AUCTION_NAME: 'Auction name must be 3–60 characters.',
+  INVALID_HUMAN_PLAYERS: 'Human players must be between 2 and the total number of teams.',
+  TOTAL_TEAMS_MUST_BE_2_TO_10: 'Total teams must be between 2 and 10.',
+  TOO_MANY_OPEN_AUCTIONS: 'You already host 5 open auctions. Finish or cancel one first.',
+  PLAYER_DATABASE_EMPTY: 'The player database is empty. Import the official players first.',
+  PLAYER_POOL_TOO_SMALL: 'Not enough players in the pool for this many teams.',
+  ONLY_HOST_CAN_START: 'Only the host can start the auction.',
+  ONLY_HOST_CAN_INVITE: 'Only the host can invite players.',
+  ONLY_HOST_CAN_CANCEL: 'Only the host can cancel the auction.',
+  NEED_AT_LEAST_TWO_HUMANS: 'At least 2 human players must join before starting.',
+  PLAYERS_NOT_READY: 'Everyone must be ready before the host can start.',
+  CANNOT_CANCEL_IN_THIS_STATE: 'This auction can no longer be cancelled.',
+  CANNOT_LEAVE_AFTER_START: 'You cannot leave after the auction starts — your team stays in it.',
+  NOT_A_MEMBER: 'You are not a member of this auction.',
+  NOT_A_TEAM_OWNER: 'You do not control a team in this auction.',
+  CAN_ONLY_INVITE_FRIENDS: 'You can only invite friends.',
+  CANNOT_INVITE_SELF: 'You cannot invite yourself.',
+  INVITATION_NOT_FOUND: 'Invitation not found.',
+  INVITATION_NOT_PENDING: 'This invitation is no longer active.',
+  CANNOT_FRIEND_SELF: 'You cannot add yourself.',
+  USER_NOT_FOUND: 'Player not found.',
+  REQUEST_NOT_FOUND: 'Friend request not found.',
+  REQUEST_NOT_PENDING: 'This friend request was already handled.',
+  TOO_MANY_PENDING_REQUESTS: 'You have too many pending friend requests.',
+  BOT_TEAM_CREATION_FAILED: 'Could not create BOT teams. Please try again.',
+  AUCTION_NOT_LIVE: 'The auction is not live.',
+  NOT_CURRENT_PLAYER: 'That player is no longer up for bidding.',
+  TIMER_NOT_STARTED: 'Bidding opens in a moment.',
+  TIMER_EXPIRED: 'Too late — time ran out for this player.',
+  ALREADY_HIGHEST_BIDDER: 'You are already the highest bidder.',
+  TEAM_SKIPPED_PLAYER: 'You skipped this player, so you cannot bid.',
+  INVALID_AMOUNT: 'That bid amount is not valid.',
+  INVALID_BID_AMOUNT: 'Someone bid first — pick one of the new amounts.',
+  NO_HIGHER_BID_POSSIBLE: 'The bid is already at the ₹5.00 Cr ceiling.',
+  ABOVE_MAX_PLAYER_PRICE: 'Bids cannot exceed ₹5.00 Cr.',
+  BID_NOT_HIGHER: 'Someone bid first — pick a higher amount.',
+  BID_BELOW_MINIMUM: 'That bid is below the minimum.',
+  SQUAD_FULL: 'Your squad already has 16 players.',
+  INSUFFICIENT_PURSE: 'Not enough purse for this bid.',
+  ROLE_LIMIT_REACHED: 'You already have the maximum players for this role.',
+  ROLE_MINIMUMS_AT_RISK: 'This buy would leave too few slots to meet your role minimums.',
+  PURSE_RESERVE_REQUIRED: 'You must keep enough purse to complete all 16 slots.',
+  ALREADY_SKIPPED: 'You already skipped this player.',
+  CANNOT_SKIP_WHILE_HIGHEST_BIDDER: 'You cannot skip while you are the highest bidder.',
+  INVALID_REFERENCE: 'Something is out of sync. Reloading…'
+};
+
+let sb = null;
+const S = {
+  session: null, profile: null, setupFor: null, players: new Map(), playersPromise: null,
+  route: null, routeToken: 0, viewTimers: [], viewChannels: [], notifChannel: null,
+  unread: 0, room: null, hb: null, ready: false, recovery: false, ovTimer: null
+};
+let PREFS = { reduceMotion: false, debug: false, haptics: true };
+try { Object.assign(PREFS, JSON.parse(localStorage.getItem('ca_prefs') || '{}')); } catch (e) { /* ignore bad prefs */ }
+function savePrefs() { try { localStorage.setItem('ca_prefs', JSON.stringify(PREFS)); } catch (e) { /* ignore */ } applyPrefs(); }
+function applyPrefs() { document.body.classList.toggle('reduce-motion', !!PREFS.reduceMotion); }
+function log(...a) { if (PREFS.debug) console.log('%c[auction]', 'color:#fbbf24', ...a); }
+
+/* ===================== UTILITIES ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const n2 = v => Math.round(Number(v) * 100) / 100;
+const cr = v => (v === null || v === undefined || v === '') ? '—' : '₹' + Number(v).toFixed(2) + ' Cr';
+const range = (a, b) => Array.from({ length: Math.max(0, b - a + 1) }, (_, i) => a + i);
+const initials = s => String(s || '?').trim().split(/\s+/).filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const maxBy = (arr, f) => arr.reduce((best, x) => (best === null || f(x) > f(best)) ? x : best, null);
+const baseUrl = () => location.origin + location.pathname;
+const roleMeta = r => ROLES.find(x => x.role === r) || ROLES[1];
+function uerr(message) { const e = new Error(message); e.userMsg = true; return e; }
+function timeAgo(ts) { const s = Math.max(0, (Date.now() - Date.parse(ts)) / 1000); if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + 'm ago'; if (s < 86400) return Math.floor(s / 3600) + 'h ago'; return Math.floor(s / 86400) + 'd ago'; }
+function dateFmt(ts) { try { return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return ''; } }
+function fairValue(overall, base, max) { const q = Math.min(Math.max((Number(overall) - 72) / 24, 0), 1); return n2(Number(base) + Math.max(Number(max) - Number(base), 0) * Math.pow(q, 1.6)); }
+
+/* LOCKED quick-bid rule — identical to app_private.quick_bid_options() in the database */
+function quickBidOptions(base, current, max) {
+  base = n2(base); max = n2(max);
+  const has = current !== null && current !== undefined;
+  const cur = has ? n2(current) : null;
+  const raw = has ? [cur + 0.25, cur + 0.5, cur + 1] : [base, base + 0.25, base + 0.5];
+  return [...new Set(raw.map(v => n2(Math.min(v, max))))].filter(v => !has || v > cur + 1e-9).sort((a, b) => a - b);
+}
+/* Mirror of app_private.team_acquire_block_reason() — used only to disable buttons; server decides. */
+function blockReason(team, role, price, reserve) {
+  const count = Number(team.squad_count) || 0, purse = Number(team.remaining_purse_cr) || 0;
+  if (count >= SQUAD_SIZE) return 'SQUAD_FULL';
+  if (price > purse + 1e-9) return 'INSUFFICIENT_PURSE';
+  const slotsAfter = SQUAD_SIZE - count - 1; let needed = 0;
+  for (const r of ROLES) { const c = (Number(team[r.key]) || 0) + (r.role === role ? 1 : 0); if (c > r.max) return 'ROLE_LIMIT_REACHED'; needed += Math.max(r.min - c, 0); }
+  if (needed > slotsAfter) return 'ROLE_MINIMUMS_AT_RISK';
+  if (purse - price < slotsAfter * (reserve || 0) - 1e-9) return 'PURSE_RESERVE_REQUIRED';
+  return null;
+}
+function avatarHTML(name, url, online, cls = '') {
+  const dot = (online === null || online === undefined) ? '' : `<span class="dot ${online ? 'on' : ''}" aria-label="${online ? 'Online' : 'Offline'}"></span>`;
+  const inner = url ? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : esc(initials(name));
+  return `<span class="av ${cls}">${inner}${dot}</span>`;
+}
+
+/* ===================== UI HELPERS ===================== */
+function setView(html) { $('#view').innerHTML = html; }
+const alive = t => t === undefined || t === S.routeToken;
+function toast(msg, type = 'info', ms = 3800) {
+  const box = $('#toasts'), el = document.createElement('div');
+  el.className = 'toast ' + type; el.textContent = msg; box.appendChild(el);
+  while (box.children.length > 4) box.firstChild.remove();
+  setTimeout(() => el.remove(), ms);
+}
+function setBusy(el, on) { if (!el) return; el.classList.toggle('busy', !!on); el.setAttribute('aria-busy', on ? 'true' : 'false'); }
+const loadingHTML = (txt = 'Loading…') => `<div class="loading"><div class="spinner" aria-hidden="true"></div>${esc(txt)}</div>`;
+const errorHTML = msg => `<div class="wrap narrow"><div class="card center"><h2 class="h2" style="margin-top:0">Couldn't load this</h2><p class="mut">${esc(msg)}</p><button class="btn btn-pri" data-action="retry" data-busy="no">Try again</button></div></div>`;
+function friendly(err) {
+  if (!err) return 'Something went wrong.';
+  if (err.userMsg) return err.message;
+  const m = String(err.message || err.code || err);
+  if (MSG[m]) return MSG[m];
+  const key = Object.keys(MSG).find(k => m.includes(k));
+  if (key) return MSG[key];
+  if (/Failed to fetch|NetworkError|network|Load failed/i.test(m)) return 'Network problem. Check your connection and try again.';
+  if (/JWT|expired/i.test(m)) return 'Your session expired. Please log in again.';
+  if (err.code === '42501') return "You don't have permission to do that.";
+  if (err.code === '23505') return 'That already exists.';
+  log('Unmapped error', err);
+  return 'Something went wrong. Please try again.';
+}
+function errText(err) { if (err && String(err.name || '').includes('Auth') && err.message) return err.message; return friendly(err); }
+function confirmBox(msg, ok = 'Confirm', danger = false) {
+  return new Promise(resolve => {
+    const m = $('#modal'); m.hidden = false;
+    m.innerHTML = `<div class="modal-card card" role="dialog" aria-modal="true" aria-labelledby="m-title"><p id="m-title" style="margin:0 0 16px">${esc(msg)}</p><div class="row end"><button class="btn btn-ghost" data-m="0">Cancel</button><button class="btn ${danger ? 'btn-bad' : 'btn-pri'}" data-m="1">${esc(ok)}</button></div></div>`;
+    const done = v => { m.hidden = true; m.innerHTML = ''; m.onclick = null; document.removeEventListener('keydown', onKey); resolve(v); };
+    const onKey = e => { if (e.key === 'Escape') done(false); };
+    document.addEventListener('keydown', onKey);
+    m.onclick = e => { const b = e.target.closest('[data-m]'); if (b) done(b.dataset.m === '1'); else if (e.target === m) done(false); };
+    m.querySelector('[data-m="1"]').focus();
+  });
+}
+
+/* ===================== DATA ===================== */
+async function rpc(fn, params = {}) {
+  const { data, error } = await sb.rpc(fn, params);
+  if (error) { log('rpc error', fn, error); throw error; }
+  return data;
+}
+function ensurePlayers() {
+  if (S.players.size) return Promise.resolve();
+  if (!S.playersPromise) {
+    S.playersPromise = sb.from('players').select('*').order('player_id').then(({ data, error }) => {
+      if (error) { S.playersPromise = null; throw error; }
+      (data || []).forEach(p => S.players.set(p.player_id, p));
+      log('players loaded', S.players.size);
+    });
+  }
+  return S.playersPromise;
+}
+
+/* ===================== ROUTER ===================== */
+const PUBLIC = new Set(['login', 'signup', 'forgot', 'reset']);
+function parseHash() {
+  const h = location.hash.replace(/^#\/?/, '');
+  if (/access_token=|error_description=|type=recovery/.test(h)) return null;
+  const [path, qs] = h.split('?');
+  const [name, ...rest] = path.split('/');
+  return { name: name || 'home', params: rest, query: new URLSearchParams(qs || '') };
+}
+function go(path) { const h = '#/' + path; if (location.hash === h) route(); else location.hash = h; }
+function cleanupView() {
+  S.viewTimers.forEach(clearInterval); S.viewTimers = [];
+  if (sb) S.viewChannels.forEach(ch => sb.removeChannel(ch));
+  S.viewChannels = []; S.room = null;
+  document.body.classList.remove('in-live');
+  const ov = $('#overlay'); if (ov) ov.className = 'overlay';
+}
+async function route() {
+  if (!S.ready) return;
+  const r = parseHash(); if (!r) return;
+  if (!S.session && !PUBLIC.has(r.name)) { go('login'); return; }
+  if (S.session && PUBLIC.has(r.name) && !(r.name === 'reset' && S.recovery)) { go('home'); return; }
+  cleanupView();
+  const t = ++S.routeToken; S.route = r;
+  renderChrome();
+  window.scrollTo(0, 0);
+  const fn = VIEWS[r.name] || viewNotFound;
+  try { await fn(r, t); }
+  catch (e) { log('view error', e); if (alive(t)) setView(errorHTML(friendly(e))); }
+}
+function renderChrome() {
+  const tb = $('#topbar'), bn = $('#botnav');
+  if (!S.session || !S.route || PUBLIC.has(S.route.name)) { tb.hidden = true; bn.hidden = true; return; }
+  tb.hidden = false; bn.hidden = false;
+  const n = S.route.name;
+  const cur = n === 'a' ? 'my-auctions' : ['multi', 'create', 'join'].includes(n) ? 'play' : n;
+  const nb = (to, ic, label) => `<button data-action="nav" data-to="${to}" data-busy="no" ${cur === to ? 'aria-current="page"' : ''}><span class="ic" aria-hidden="true">${ic}</span><span>${label}</span></button>`;
+  const p = S.profile || {};
+  tb.innerHTML = `<button class="brand" data-action="nav" data-to="home" data-busy="no" aria-label="Auction Arena home"><i aria-hidden="true">₹</i><span class="full">Auction Arena</span></button>
+    <nav class="topnav" aria-label="Main">${nb('home', '🏠', 'Home')}${nb('play', '▶️', 'Play')}${nb('my-auctions', '🏆', 'My Auctions')}${nb('friends', '👥', 'Friends')}</nav>
+    <div class="top-right">
+      <button class="icon-btn" data-action="nav" data-to="notifications" data-busy="no" aria-label="Notifications">🔔<span class="count bell-count"></span></button>
+      <button class="icon-btn" data-action="nav" data-to="settings" data-busy="no" aria-label="Settings">⚙️</button>
+      <button class="icon-btn" data-action="nav" data-to="profile" data-busy="no" aria-label="Profile">${avatarHTML(p.display_name || S.session.user.email, p.avatar_url)}</button>
+    </div>`;
+  bn.innerHTML = nb('home', '🏠', 'Home') + nb('play', '▶️', 'Play') + nb('my-auctions', '🏆', 'Auctions') + nb('friends', '👥', 'Friends') + nb('profile', '👤', 'Profile');
+  updateBell();
+}
+function updateBell() { $$('.bell-count').forEach(e => { e.textContent = S.unread > 0 ? (S.unread > 99 ? '99+' : String(S.unread)) : ''; }); }
+async function refreshNotifCount() {
+  const { count, error } = await sb.from('notifications').select('id', { count: 'exact', head: true }).eq('is_read', false);
+  if (!error) { S.unread = count || 0; updateBell(); }
+}
+
+/* ===================== AUTH / SESSION ===================== */
+async function onAuth(event, session) {
+  log('auth event', event);
+  S.session = session;
+  if (event === 'SIGNED_OUT') { teardownUser(); S.recovery = false; if (S.ready) { renderChrome(); go('login'); } return; }
+  if (event === 'PASSWORD_RECOVERY') S.recovery = true;
+  if (session) await setupUser();
+  if (event === 'INITIAL_SESSION') {
+    S.ready = true;
+    const h = location.hash;
+    if (/error_description=/.test(h)) {
+      const m = decodeURIComponent(((h.match(/error_description=([^&]+)/) || [])[1] || '').replace(/\+/g, ' '));
+      history.replaceState(null, '', baseUrl() + '#/login');
+      if (m) toast(m, 'error', 6000);
+    } else if (/access_token=|type=recovery/.test(h)) {
+      history.replaceState(null, '', baseUrl() + (S.recovery ? '#/reset' : '#/home'));
+    }
+    route(); return;
+  }
+  if (event === 'PASSWORD_RECOVERY') { go('reset'); return; }
+  if (event === 'SIGNED_IN' && S.ready) {
+    const r = parseHash();
+    if (!r || (PUBLIC.has(r.name) && !(r.name === 'reset' && S.recovery))) go('home');
+  }
+}
+async function setupUser() {
+  const uid = S.session.user.id;
+  if (S.setupFor === uid) return;
+  S.setupFor = uid;
+  const { data, error } = await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
+  if (error) log('profile load', error);
+  S.profile = data || null;
+  ensurePlayers().catch(e => log('players', e));
+  if (S.notifChannel) sb.removeChannel(S.notifChannel);
+  S.notifChannel = sb.channel('notif-' + uid)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${uid}` }, p => {
+      const n = p.new || {}; S.unread++; updateBell();
+      if (S.route && S.route.name === 'notifications') loadNotifications().catch(e => log(e));
+      else toast(`${n.title || 'Notification'}: ${n.message || ''}`, 'info', 5000);
+    })
+    .subscribe(st => log('notif channel', st));
+  refreshNotifCount().catch(e => log(e));
+  heartbeat(); clearInterval(S.hb); S.hb = setInterval(heartbeat, 45000);
+  renderChrome();
+}
+function teardownUser() {
+  clearInterval(S.hb); S.hb = null;
+  if (S.notifChannel && sb) { sb.removeChannel(S.notifChannel); S.notifChannel = null; }
+  cleanupView();
+  S.profile = null; S.setupFor = null; S.unread = 0;
+}
+function heartbeat() { if (S.session && sb) sb.rpc('set_online_status', { p_online: true }).then(({ error }) => { if (error) log('heartbeat', error); }); }
+
+/* ===================== AUTH VIEWS ===================== */
+const authShell = inner => `<div class="auth-wrap"><div class="auth-card"><div class="auth-brand"><div class="brand"><i aria-hidden="true">₹</i>Auction Arena</div><div class="kicker">Cricket player auction</div></div><div class="card glow">${inner}</div></div></div>`;
+function viewLogin() {
+  setView(authShell(`<h1 class="h2" style="margin:0 0 14px">Log in</h1>
+    <form data-form="login" novalidate><div class="form-err" role="alert"></div>
+      <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" required></label>
+      <label class="field"><span>Password</span><input class="input" name="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn btn-gold btn-block" type="submit">Log in</button></form>
+    <div class="auth-links"><a href="#/forgot">Forgot password?</a><a href="#/signup">Create account</a></div>`));
+}
+function viewSignup() {
+  setView(authShell(`<h1 class="h2" style="margin:0 0 14px">Create account</h1>
+    <form data-form="signup" novalidate><div class="form-err" role="alert"></div>
+      <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" required></label>
+      <label class="field"><span>Display name</span><input class="input" name="display_name" minlength="3" maxlength="24" autocomplete="nickname" placeholder="Shown to other players"></label>
+      <label class="field"><span>Password</span><input class="input" name="password" type="password" autocomplete="new-password" required minlength="6"></label>
+      <label class="field"><span>Confirm password</span><input class="input" name="confirm" type="password" autocomplete="new-password" required minlength="6"></label>
+      <button class="btn btn-gold btn-block" type="submit">Sign up</button></form>
+    <div class="auth-links"><span class="mut">Already playing?</span><a href="#/login">Log in</a></div>`));
+}
+function viewForgot() {
+  setView(authShell(`<h1 class="h2" style="margin:0 0 8px">Forgot password</h1><p class="mut small" style="margin-top:0">We'll email you a secure reset link.</p>
+    <form data-form="forgot" novalidate><div class="form-err" role="alert"></div>
+      <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" required></label>
+      <button class="btn btn-pri btn-block" type="submit">Send reset link</button></form>
+    <div class="auth-links"><a href="#/login">Back to login</a></div>`));
+}
+function viewReset() {
+  if (!S.session) {
+    setView(authShell(`<h1 class="h2" style="margin:0 0 10px">Reset link expired</h1><p class="mut">Open the newest reset email, or request a new link.</p><a class="btn btn-pri btn-block" href="#/forgot">Send a new link</a>`));
+    return;
+  }
+  setView(authShell(`<h1 class="h2" style="margin:0 0 14px">Choose a new password</h1>
+    <form data-form="reset" novalidate><div class="form-err" role="alert"></div>
+      <label class="field"><span>New password</span><input class="input" name="password" type="password" autocomplete="new-password" required minlength="6"></label>
+      <label class="field"><span>Confirm new password</span><input class="input" name="confirm" type="password" autocomplete="new-password" required minlength="6"></label>
+      <button class="btn btn-gold btn-block" type="submit">Update password</button></form>`));
+}
+const FORMS = {}, ACTIONS = {}, INPUTS = {}, CHANGES = {};
+FORMS.login = async d => {
+  const email = (d.email || '').trim();
+  if (!email || !d.password) throw uerr('Enter your email and password.');
+  const { error } = await sb.auth.signInWithPassword({ email, password: d.password });
+  if (error) throw error;
+};
+FORMS.signup = async (d, f) => {
+  const email = (d.email || '').trim(), name = (d.display_name || '').trim();
+  if (!email) throw uerr('Enter your email.');
+  if (name && (name.length < 3 || name.length > 24)) throw uerr('Display name must be 3–24 characters.');
+  if ((d.password || '').length < 6) throw uerr('Password must be at least 6 characters.');
+  if (d.password !== d.confirm) throw uerr('Passwords do not match.');
+  const { data, error } = await sb.auth.signUp({ email, password: d.password, options: { data: name ? { display_name: name } : {}, emailRedirectTo: baseUrl() } });
+  if (error) throw error;
+  if (!data.session) f.outerHTML = `<div class="form-ok">Account created. Check <b>${esc(email)}</b> for a confirmation link, then log in.</div><a class="btn btn-block mt" href="#/login">Back to login</a>`;
+};
+FORMS.forgot = async (d, f) => {
+  const email = (d.email || '').trim(); if (!email) throw uerr('Enter your email.');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: baseUrl() });
+  if (error) throw error;
+  f.outerHTML = `<div class="form-ok">If an account exists for <b>${esc(email)}</b>, a reset link is on its way.</div>`;
+};
+FORMS.reset = async d => {
+  if ((d.password || '').length < 6) throw uerr('Password must be at least 6 characters.');
+  if (d.password !== d.confirm) throw uerr('Passwords do not match.');
+  const { error } = await sb.auth.updateUser({ password: d.password });
+  if (error) throw error;
+  S.recovery = false; toast('Password updated.', 'ok'); go('home');
+};
+ACTIONS.logout = async () => {
+  try { await rpc('set_online_status', { p_online: false }); } catch (e) { log(e); }
+  await sb.auth.signOut();
+};
+ACTIONS.nav = el => go(el.dataset.to);
+ACTIONS.retry = () => route();
+
+/* ===================== HOME / PLAY ===================== */
+function auctionCard(a) {
+  const st = { lobby: 'Lobby', live: 'Live', completed: 'Completed', cancelled: 'Cancelled' }[a.status] || a.status;
+  const btn = a.status === 'live' ? 'Continue' : a.status === 'lobby' ? 'Open lobby' : 'View';
+  const extra = (a.status === 'live' || a.status === 'completed') ? ` · ${a.players_resolved}/${a.players_total} lots` : '';
+  const res = a.status === 'completed' ? ` · Winner: ${esc(a.winner_team_name || '—')}${a.my_rank ? ` · You: #${a.my_rank}` : ''}` : '';
+  return `<div class="item"><div class="grow"><div class="row gap6 wrap-row"><span class="pill st-${a.status}">${st}</span><span class="tiny mut">${a.mode === 'single_player' ? 'Single player' : 'Multiplayer'} · ${esc(a.code)}</span></div>
+    <b class="auc-name ell">${esc(a.name)}</b><div class="small mut">${esc(a.my_team_name || '')}${extra}${res}</div></div>
+    <button class="btn btn-sm ${a.status === 'live' ? 'btn-gold' : ''}" data-action="nav" data-to="a/${a.auction_id}" data-busy="no">${btn}</button></div>`;
+}
+async function viewHome(r, t) {
+  setView(`<div class="wrap">
+    <section class="card glow hero">
+      <div class="kicker">Welcome, ${esc((S.profile && S.profile.display_name) || 'Player')}</div>
+      <h1 class="hero-title">Bid smart.<br><span class="gold">Build the best 16.</span></h1>
+      <div class="facts"><span>₹100 Cr purse</span><span>₹5 Cr max per player</span><span>16-player squads</span><span>15-second lots</span></div>
+      <button class="btn btn-gold btn-xl" data-action="nav" data-to="play" data-busy="no">▶ PLAY</button>
+    </section>
+    <div id="home-active"></div>
+    <div class="tiles">
+      <button class="tile" data-action="nav" data-to="my-auctions" data-busy="no"><span class="ic" aria-hidden="true">🏆</span><b>My Auctions</b><small>Continue or review</small></button>
+      <button class="tile" data-action="nav" data-to="friends" data-busy="no"><span class="ic" aria-hidden="true">👥</span><b>Friends</b><small>Find players</small></button>
+      <button class="tile" data-action="nav" data-to="profile" data-busy="no"><span class="ic" aria-hidden="true">👤</span><b>Profile</b><small>Name & stats</small></button>
+      <button class="tile" data-action="nav" data-to="settings" data-busy="no"><span class="ic" aria-hidden="true">⚙️</span><b>Settings</b><small>Motion & rules</small></button>
+    </div></div>`);
+  try {
+    const list = await rpc('get_my_auctions'); if (!alive(t)) return;
+    const act = (list || []).filter(a => a.status === 'live' || a.status === 'lobby').slice(0, 3);
+    if (act.length) $('#home-active').innerHTML = `<h2 class="h2">Continue</h2><div class="list">${act.map(auctionCard).join('')}</div>`;
+  } catch (e) { log(e); }
+}
+function viewPlay() {
+  setView(`<div class="wrap"><div class="kicker">Play</div><h1 class="h1">Choose your mode</h1>
+    <div class="choice">
+      <button class="choice-card" data-action="nav" data-to="create?mode=single" data-busy="no"><div class="ic" aria-hidden="true">🎯</div><h2>Single Player</h2><p>You against intelligent BOT teams. Starts instantly.</p></button>
+      <button class="choice-card" data-action="nav" data-to="multi" data-busy="no"><div class="ic" aria-hidden="true">🌐</div><h2>Multiplayer</h2><p>Play with friends. BOT teams fill the empty seats.</p></button>
+    </div></div>`);
+}
+function viewMulti() {
+  setView(`<div class="wrap"><button class="btn btn-ghost btn-sm" data-action="nav" data-to="play" data-busy="no">← Back</button>
+    <div class="kicker mt">Multiplayer</div><h1 class="h1">Create or join</h1>
+    <div class="choice">
+      <button class="choice-card" data-action="nav" data-to="create?mode=multi" data-busy="no"><div class="ic" aria-hidden="true">🏟️</div><h2>Create Auction</h2><p>Set teams, invite friends and share your auction code.</p></button>
+      <button class="choice-card" data-action="nav" data-to="join" data-busy="no"><div class="ic" aria-hidden="true">🔑</div><h2>Join Auction</h2><p>Enter a 6-character code from your host.</p></button>
+    </div></div>`);
+}
+async function viewCreate(r, t) {
+  const multi = r.query.get('mode') === 'multi', mode = multi ? 'multiplayer' : 'single_player';
+  let friends = [];
+  if (multi) { try { friends = (await rpc('get_my_friends')) || []; } catch (e) { log(e); } if (!alive(t)) return; }
+  const nm = (S.profile && S.profile.display_name) || 'My';
+  setView(`<div class="wrap narrow">
+    <button class="btn btn-ghost btn-sm" data-action="nav" data-to="${multi ? 'multi' : 'play'}" data-busy="no">← Back</button>
+    <div class="kicker mt">${multi ? 'Multiplayer' : 'Single player'}</div>
+    <h1 class="h1">${multi ? 'Create auction' : 'New solo auction'}</h1>
+    <p class="mut">${multi ? 'Human players includes you. Empty seats become BOT teams.' : 'You against intelligent BOT teams. The auction starts immediately.'}</p>
+    <form class="card mt" data-form="create" data-mode="${mode}" novalidate>
+      <div class="form-err" role="alert"></div>
+      <label class="field"><span>Auction name</span><input class="input" name="name" required minlength="3" maxlength="60" value="${esc((nm + "'s Auction").slice(0, 60))}"></label>
+      <div class="grid2">
+        <label class="field"><span>Total teams</span><select class="input" name="total_teams" data-change="create-recalc">${range(2, 10).map(n => `<option value="${n}" ${n === 8 ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        ${multi ? `<label class="field"><span>Human players (incl. you)</span><select class="input" name="human_players" data-change="create-recalc">${range(2, 8).map(n => `<option value="${n}" ${n === 2 ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`
+                : `<div class="field"><span class="small mut" style="display:block;margin-bottom:6px">Human players</span><div class="input" style="display:flex;align-items:center">1 (you)</div></div>`}
+      </div>
+      <div class="hint" style="margin:-4px 0 14px">BOT teams: <b class="gold" id="bot-count">${multi ? 6 : 7}</b> · ₹100 Cr purse each · 16 players per squad</div>
+      <div class="grid2">
+        <label class="field"><span>Your team name</span><input class="input" name="team_name" required minlength="2" maxlength="30" placeholder="e.g. Desert Storm"></label>
+        <label class="field"><span>Short name (optional)</span><input class="input" name="short_name" maxlength="5" placeholder="e.g. DST" autocapitalize="characters"></label>
+      </div>
+      ${multi ? `<div class="field"><span>Invite friends <span class="dim" id="invite-limit">(up to 1)</span></span>${friends.length
+        ? `<div class="list">${friends.map(f => `<label class="item check"><input type="checkbox" name="invite" value="${esc(f.friend_id)}">${avatarHTML(f.display_name, f.avatar_url, f.is_online)}<span class="grow ell">${esc(f.display_name)}</span></label>`).join('')}</div>`
+        : '<div class="empty small">No friends yet. Share the auction code after creating, or add friends first.</div>'}</div>` : ''}
+      <button class="btn btn-gold btn-block btn-xl" type="submit">${multi ? 'Create auction' : 'Start auction'}</button>
+    </form></div>`);
+}
+CHANGES['create-recalc'] = () => {
+  const f = $('form[data-form=create]'); if (!f) return;
+  const total = +f.elements.total_teams.value, hs = f.elements.human_players;
+  let humans = 1;
+  if (hs) { humans = Math.min(+hs.value, total); hs.innerHTML = range(2, total).map(n => `<option value="${n}" ${n === humans ? 'selected' : ''}>${n}</option>`).join(''); humans = +hs.value; }
+  $('#bot-count').textContent = String(total - humans);
+  const lim = $('#invite-limit'); if (lim) lim.textContent = `(up to ${humans - 1})`;
+};
+FORMS.create = async (d, f) => {
+  const mode = f.dataset.mode, multi = mode === 'multiplayer';
+  const total = +d.total_teams, humans = multi ? +d.human_players : 1;
+  const name = (d.name || '').trim(), team = (d.team_name || '').trim(), short = (d.short_name || '').trim().toUpperCase();
+  if (name.length < 3) throw uerr('Auction name must be at least 3 characters.');
+  if (team.length < 2) throw uerr('Enter your team name (2–30 characters).');
+  if (short && !/^[A-Z0-9]{2,5}$/.test(short)) throw uerr('Short name must be 2–5 letters or digits.');
+  const invites = multi ? $$('input[name=invite]:checked', f).map(i => i.value) : [];
+  if (invites.length > humans - 1) throw uerr(`With ${humans} human players you can invite up to ${humans - 1} friend(s).`);
+  const res = await rpc('create_auction', { p_name: name, p_mode: mode, p_total_teams: total, p_team_name: team, p_human_players: humans, p_short_name: short || null });
+  if (!multi) {
+    try { await rpc('start_auction', { p_auction_id: res.auction_id }); } catch (e) { toast(friendly(e), 'error'); }
+  } else {
+    for (const id of invites) { try { await rpc('invite_to_auction', { p_auction_id: res.auction_id, p_invitee_id: id }); } catch (e) { toast(friendly(e), 'warn'); } }
+    if (invites.length) toast(`Invited ${invites.length} friend(s).`, 'ok');
+  }
+  go('a/' + res.auction_id);
+};
+function viewJoin(r) {
+  setView(`<div class="wrap narrow"><button class="btn btn-ghost btn-sm" data-action="nav" data-to="multi" data-busy="no">← Back</button>
+    <div class="kicker mt">Multiplayer</div><h1 class="h1">Join auction</h1>
+    <form class="card mt" data-form="join-code" novalidate><div class="form-err" role="alert"></div>
+      <label class="field"><span>Auction code</span><input class="input" name="code" required maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC234" style="font-family:var(--disp);font-size:26px;letter-spacing:.3em;text-transform:uppercase" value="${esc(r.query.get('code') || '')}"></label>
+      <button class="btn btn-pri btn-block" type="submit">Find auction</button></form>
+    <div id="join-preview"></div></div>`);
+}
+FORMS['join-code'] = async d => {
+  const code = (d.code || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{6}$/.test(code)) throw uerr('Enter the 6-character auction code.');
+  const p = await rpc('get_auction_preview', { p_code: code });
+  if (p.is_member) { go('a/' + p.auction_id); return; }
+  const why = p.status !== 'lobby' ? 'This auction has already started. New players cannot join.' : p.mode !== 'multiplayer' ? 'This is a single-player auction.' : 'This auction is full.';
+  $('#join-preview').innerHTML = `<div class="card mt"><div class="kicker">Found auction</div><div class="teamname" style="margin:4px 0">${esc(p.name)}</div>
+    <div class="small mut">Host: ${esc(p.host_display_name || '—')} · Humans ${p.humans_joined}/${p.human_slots} · ${p.total_teams} teams · ${cr(p.starting_purse_cr)} purse</div>
+    ${p.joinable ? `<form data-form="join-team" class="mt" novalidate><div class="form-err" role="alert"></div><input type="hidden" name="code" value="${esc(p.code)}">
+      <div class="grid2"><label class="field"><span>Your team name</span><input class="input" name="team_name" required minlength="2" maxlength="30"></label>
+      <label class="field"><span>Short name (optional)</span><input class="input" name="short_name" maxlength="5" autocapitalize="characters"></label></div>
+      <button class="btn btn-gold btn-block" type="submit">Join lobby</button></form>` : `<div class="form-err mt">${esc(why)}</div>`}</div>`;
+};
+FORMS['join-team'] = async d => {
+  const team = (d.team_name || '').trim(), short = (d.short_name || '').trim().toUpperCase();
+  if (team.length < 2) throw uerr('Enter your team name (2–30 characters).');
+  if (short && !/^[A-Z0-9]{2,5}$/.test(short)) throw uerr('Short name must be 2–5 letters or digits.');
+  const res = await rpc('join_auction', { p_code: d.code, p_team_name: team, p_short_name: short || null });
+  go('a/' + res.auction_id);
+};
+
+/* ===================== AUCTION ROOM (lobby / live / results) ===================== */
+function currentAp() { const R = S.room; return (R && R.auction) ? (R.aps.get(R.auction.current_auction_player_id) || null) : null; }
+function serverNow() { return Date.now() + ((S.room && S.room.offset) || 0); }
+function memberName(uid) { const m = S.room && S.room.members.find(x => x.user_id === uid); return m ? m.display_name : ''; }
+function minPendingBase() { let m = null; for (const a of S.room.aps.values()) if (a.status === 'pending') { const v = Number(a.base_price_cr); if (m === null || v < m) m = v; } return m || 0; }
+
+async function viewAuctionRoom(r, t) {
+  const id = r.params[0];
+  if (!/^[0-9a-f-]{36}$/i.test(id || '')) { setView(errorHTML('Invalid auction link.')); return; }
+  setView(loadingHTML('Loading auction…'));
+  await ensurePlayers();
+  const R = { id, tab: 'team', feed: [], skips: [], aps: new Map(), teams: new Map(), members: [], squads: [], results: [], view: null, resTries: 0 };
+  await loadAuction(R);
+  if (!alive(t)) return;
+  S.room = R;
+  subscribeAuction(R);
+  renderRoom();
+}
+async function loadAuction(R) {
+  const t0 = Date.now();
+  const [st, aps] = await Promise.all([
+    rpc('get_auction_state', { p_auction_id: R.id }),
+    sb.from('auction_players').select('*').eq('auction_id', R.id).order('auction_order', { ascending: true })
+  ]);
+  const t1 = Date.now();
+  if (aps.error) throw aps.error;
+  R.offset = Date.parse(st.server_time) - (t0 + t1) / 2;
+  R.auction = st.auction; R.myTeamId = st.my_team_id;
+  R.teams = new Map((st.teams || []).map(x => [x.id, x]));
+  R.members = st.members || [];
+  R.aps = new Map((aps.data || []).map(x => [x.id, x]));
+  R.skips = st.current_skips || [];
+  R.squads = st.squads || [];
+  R.results = st.results || [];
+}
+function subscribeAuction(R) {
+  const f = `auction_id=eq.${R.id}`;
+  const ch = sb.channel(`room-${R.id}-${Date.now()}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'auctions', filter: `id=eq.${R.id}` }, onAuctionRow)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_players', filter: f }, onApRow)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_teams', filter: f }, onTeamRow)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_members', filter: f }, () => debouncedReload())
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'skip_events', filter: f }, onSkip)
+    .subscribe(status => {
+      log('room channel', status);
+      const conn = $('#lv-conn');
+      if (status === 'SUBSCRIBED') { if (conn) conn.classList.remove('off'); if (R.disconnected) { R.disconnected = false; reloadRoom(); } }
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') { R.disconnected = true; if (conn) conn.classList.add('off'); }
+    });
+  S.viewChannels.push(ch);
+}
+async function reloadRoom() {
+  const R = S.room; if (!R) return;
+  if (R.reloading) { R.reloadQueued = true; return; }
+  R.reloading = true;
+  try {
+    await loadAuction(R);
+    if (S.room !== R) return;
+    if (R.auction.status !== R.rendered) renderRoom();
+    else if (R.auction.status === 'live') { R.phase = null; scheduleLive(); }
+    else if (R.auction.status === 'lobby') renderLobby();
+    else if (R.auction.status === 'completed') renderResults();
+  } catch (e) { log('reload', e); toast(friendly(e), 'error'); }
+  finally { R.reloading = false; if (R.reloadQueued && S.room === R) { R.reloadQueued = false; setTimeout(reloadRoom, 60); } }
+}
+const debouncedReload = debounce(() => reloadRoom(), 250);
+function renderRoom() {
+  const R = S.room; if (!R) return;
+  const st = R.auction.status; R.rendered = st;
+  document.body.classList.toggle('in-live', st === 'live');
+  S.viewTimers.forEach(clearInterval); S.viewTimers = [];
+  if (st === 'lobby') renderLobby();
+  else if (st === 'live') renderLive();
+  else if (st === 'completed') renderResults();
+  else setView(`<div class="wrap narrow"><div class="card center"><div class="kicker">Auction cancelled</div><h1 class="h1" style="margin:8px 0">${esc(R.auction.name)}</h1><p class="mut">This auction was cancelled by the host.</p><button class="btn btn-pri" data-action="nav" data-to="my-auctions" data-busy="no">My Auctions</button></div></div>`);
+}
+
+/* ---------- LOBBY ---------- */
+function renderLobby() {
+  const R = S.room, A = R.auction, me = S.session.user.id, isHost = A.host_id === me, multi = A.mode === 'multiplayer';
+  const humans = [...R.teams.values()].filter(x => x.team_type === 'human').sort((a, b) => a.slot_number - b.slot_number);
+  const mem = new Map(R.members.map(m => [m.user_id, m]));
+  const myMember = mem.get(me);
+  const notReady = R.members.filter(m => !m.is_host && !m.is_ready).length;
+  const canStart = isHost && (!multi || (humans.length >= 2 && notReady === 0));
+  const startHint = !multi ? 'Start whenever you are ready.' : humans.length < 2 ? 'Need at least 2 human players.' : notReady ? `Waiting for ${notReady} player(s) to be ready.` : 'Everyone is ready.';
+  const emptyHuman = Math.max(A.human_players - humans.length, 0), bots = A.total_teams - A.human_players;
+  const myTeam = R.teams.get(R.myTeamId) || {};
+  const prevName = $('#team-edit [name=team_name]'), prevShort = $('#team-edit [name=short_name]');
+  const nameVal = prevName ? prevName.value : (myTeam.team_name || ''), shortVal = prevShort ? prevShort.value : (myTeam.short_name || '');
+  setView(`<div class="wrap">
+    <div class="row between wrap-row"><button class="btn btn-ghost btn-sm" data-action="nav" data-to="my-auctions" data-busy="no">← My Auctions</button><span class="pill st-lobby">Lobby</span></div>
+    <div class="card glow mt">
+      <div class="kicker">${multi ? 'Multiplayer lobby' : 'Single player'}</div>
+      <h1 class="h1" style="margin:6px 0 12px">${esc(A.name)}</h1>
+      ${multi ? `<div class="code-box"><div><div class="tiny mut">Auction code</div><div class="code" id="acode">${esc(A.code)}</div></div><button class="btn" data-action="copy-code" data-busy="no">Copy code</button></div>` : ''}
+      <div class="facts mt" style="margin-bottom:0"><span>${cr(A.starting_purse_cr)} purse</span><span>${cr(A.max_player_price_cr)} max per player</span><span>16 players</span><span>${A.human_players} human · ${bots} BOT</span></div>
+    </div>
+    <h2 class="h2">Teams · ${A.total_teams}</h2>
+    <div class="slots">
+      ${humans.map(tm => { const m = mem.get(tm.owner_user_id) || {}; const isMe = tm.owner_user_id === me;
+        return `<div class="slot ${isMe ? 'me' : ''}">${avatarHTML(m.display_name || tm.team_name, m.avatar_url)}<div class="grow"><b class="ell">${esc(tm.team_name)}${tm.short_name ? ` <span class="dim">· ${esc(tm.short_name)}</span>` : ''}</b><div class="small mut ell">${esc(m.display_name || 'Player')}${isMe ? ' (you)' : ''}</div></div>${m.is_host ? '<span class="pill">👑 Host</span>' : (m.is_ready ? '<span class="ready">READY</span>' : '<span class="notready">NOT READY</span>')}</div>`; }).join('')}
+      ${range(1, emptyHuman).map(() => `<div class="slot empty-slot"><span class="av">?</span><div class="grow"><b class="dim">Open seat</b><div class="small dim">Waiting for a player…</div></div></div>`).join('')}
+      ${range(1, bots).map(i => `<div class="slot bot"><span class="av" aria-hidden="true">🤖</span><div class="grow"><b class="dim">BOT team ${i}</b><div class="small dim">Joins when the auction starts</div></div></div>`).join('')}
+    </div>
+    <div class="grid2 mt">
+      <div class="card"><h3 class="h2" style="margin-top:0">Your team</h3>
+        <form data-form="team-edit" id="team-edit" novalidate><div class="form-err" role="alert"></div>
+          <label class="field"><span>Team name</span><input class="input" name="team_name" required minlength="2" maxlength="30" value="${esc(nameVal)}"></label>
+          <label class="field"><span>Short name (optional)</span><input class="input" name="short_name" maxlength="5" autocapitalize="characters" value="${esc(shortVal)}"></label>
+          <button class="btn btn-sm" type="submit">Save team name</button><div class="hint">Team names lock when the auction starts.</div></form></div>
+      <div class="card"><h3 class="h2" style="margin-top:0">${isHost ? 'Host controls' : 'Ready up'}</h3>
+        ${isHost ? `<button class="btn btn-gold btn-block" data-action="start" ${canStart ? '' : 'disabled'}>Start auction</button><div class="hint">${esc(startHint)}</div><button class="btn btn-bad btn-sm mt" data-action="cancel-auction">Cancel auction</button>`
+          : `<button class="btn ${myMember && myMember.is_ready ? '' : 'btn-gold'} btn-block" data-action="ready" data-ready="${myMember && myMember.is_ready ? '0' : '1'}">${myMember && myMember.is_ready ? 'Not ready' : "I'm ready"}</button><div class="hint">The host starts the auction when everyone is ready.</div><button class="btn btn-ghost btn-sm mt" data-action="leave">Leave lobby</button>`}
+      </div>
+    </div>
+    ${isHost && multi ? `<h2 class="h2">Invite friends</h2><div id="lobby-invite" class="list">${loadingHTML('Loading friends…')}</div>` : ''}
+  </div>`);
+  if (isHost && multi) loadLobbyInvites();
+}
+async function loadLobbyInvites() {
+  const R = S.room; if (!R || !$('#lobby-invite')) return;
+  try {
+    const [friends, inv] = await Promise.all([rpc('get_my_friends'), sb.from('auction_invitations').select('invitee_id,status').eq('auction_id', R.id).eq('status', 'pending')]);
+    const el = $('#lobby-invite'); if (!el || S.room !== R) return;
+    const memberIds = new Set(R.members.map(m => m.user_id)), pend = new Set(((inv && inv.data) || []).map(i => i.invitee_id));
+    const list = (friends || []).filter(f => !memberIds.has(f.friend_id));
+    el.innerHTML = list.length ? list.map(f => `<div class="item">${avatarHTML(f.display_name, f.avatar_url, f.is_online)}<div class="grow"><b class="ell" style="display:block">${esc(f.display_name)}</b><div class="tiny mut">${f.is_online ? 'Online' : 'Offline'}</div></div>${pend.has(f.friend_id) ? '<span class="pill">Invited</span>' : `<button class="btn btn-sm btn-pri" data-action="invite" data-id="${esc(f.friend_id)}">Invite</button>`}</div>`).join('')
+      : '<div class="empty small">No friends left to invite. Share the auction code instead.</div>';
+  } catch (e) { const el = $('#lobby-invite'); if (el) el.innerHTML = `<div class="empty small">${esc(friendly(e))}</div>`; }
+}
+ACTIONS['copy-code'] = async () => {
+  const code = S.room && S.room.auction && S.room.auction.code; if (!code) return;
+  try { await navigator.clipboard.writeText(code); toast('Auction code copied.', 'ok'); }
+  catch (e) { const el = $('#acode'); if (el) { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); } toast('Code selected — press Ctrl+C or long-press to copy.', 'info'); }
+};
+ACTIONS.ready = async el => { await rpc('set_ready', { p_auction_id: S.room.id, p_ready: el.dataset.ready === '1' }); await reloadRoom(); };
+ACTIONS.start = async () => { await rpc('start_auction', { p_auction_id: S.room.id }); await reloadRoom(); };
+ACTIONS.leave = async () => { if (!await confirmBox('Leave this lobby?', 'Leave', true)) return; await rpc('leave_auction', { p_auction_id: S.room.id }); toast('You left the lobby.', 'ok'); go('my-auctions'); };
+ACTIONS['cancel-auction'] = async () => { if (!await confirmBox('Cancel this auction for everyone?', 'Cancel auction', true)) return; await rpc('cancel_auction', { p_auction_id: S.room.id }); await reloadRoom(); };
+ACTIONS.invite = async el => {
+  const res = await rpc('invite_to_auction', { p_auction_id: S.room.id, p_invitee_id: el.dataset.id });
+  toast(res && res.ok ? 'Invitation sent.' : res && res.code === 'ALREADY_MEMBER' ? 'Already in the lobby.' : 'Invitation already pending.', res && res.ok ? 'ok' : 'info');
+  loadLobbyInvites();
+};
+FORMS['team-edit'] = async d => {
+  const team = (d.team_name || '').trim(), short = (d.short_name || '').trim().toUpperCase();
+  if (team.length < 2) throw uerr('Team name must be 2–30 characters.');
+  if (short && !/^[A-Z0-9]{2,5}$/.test(short)) throw uerr('Short name must be 2–5 letters or digits.');
+  await rpc('update_my_team', { p_auction_id: S.room.id, p_team_name: team, p_short_name: short || null });
+  toast('Team saved.', 'ok');
+  const f = $('#team-edit'); if (f) f.remove();
+  await reloadRoom();
+};
+
+/* ---------- LIVE AUCTION ---------- */
+function renderLive() {
+  const R = S.room;
+  setView(`<div class="live" data-tab="${R.tab}">
+    <div class="live-head">
+      <button class="btn btn-ghost btn-sm" data-action="nav" data-to="my-auctions" data-busy="no" aria-label="Back to My Auctions">←</button>
+      <div class="grow"><div class="row between"><span class="live-title ell">${esc(R.auction.name)}</span><span class="tiny mut" id="lv-count"></span></div><div class="prog" id="lv-prog" aria-hidden="true"><i></i></div></div>
+      <span class="conn ${R.disconnected ? 'off' : ''}" id="lv-conn" title="Live connection" role="img" aria-label="Live connection status"></span>
+    </div>
+    <div class="live-grid">
+      <section class="col-center" aria-label="Current player">
+        <div class="stage" id="lv-stage"></div>
+        <div class="actions" id="lv-actions"></div>
+        <div class="live-tabs" role="tablist">${[['team', 'My Team'], ['teams', 'Teams'], ['feed', 'Activity']].map(([k, l]) => `<button role="tab" data-action="live-tab" data-tab="${k}" data-busy="no" aria-selected="${R.tab === k}">${l}</button>`).join('')}</div>
+      </section>
+      <aside class="col-left"><div class="panel tabp" data-p="team" id="lv-mine"></div><div class="panel tabp" data-p="teams" id="lv-teams"></div></aside>
+      <aside class="col-right"><div class="panel tabp" data-p="feed" id="lv-feed"></div><div class="panel tabp" data-p="feed" id="lv-next"></div></aside>
+    </div></div>`);
+  R.phase = null;
+  renderLiveParts();
+  S.viewTimers.push(setInterval(updateTimer, 100), setInterval(liveHeartbeat, 500));
+}
+function scheduleLive() {
+  const R = S.room; if (!R || R.raf) return;
+  R.raf = requestAnimationFrame(() => { R.raf = 0; if (S.room === R && R.rendered === 'live') renderLiveParts(); });
+}
+function renderLiveParts() {
+  const R = S.room; if (!R || R.rendered !== 'live') return;
+  renderStage(); renderActions(); renderMine(); renderTeams(); renderFeed(); renderNext(); renderProgress();
+}
+const rt = (label, v, big) => `<div class="rt ${big ? 'big' : ''}"><span>${label}</span><b>${v ?? '—'}</b><i><u style="width:${Math.max(0, Math.min(100, Number(v) || 0))}%"></u></i></div>`;
+function renderStage() {
+  const R = S.room, el = $('#lv-stage'); if (!el) return;
+  const ap = currentAp();
+  if (!ap) { el.innerHTML = loadingHTML('Preparing the next player…'); return; }
+  const p = S.players.get(ap.player_id) || {}, m = roleMeta(p.role);
+  const hi = ap.highest_team_id ? R.teams.get(ap.highest_team_id) : null, mine = hi && hi.id === R.myTeamId;
+  el.innerHTML = `<div class="pcard">
+      <div class="pavatar r-${m.cls}" aria-hidden="true">${esc(initials(p.player_name))}</div>
+      <div class="grow">
+        <div class="row wrap-row gap6"><span class="badge r-${m.cls}">${esc(p.role || '')}</span><span class="badge t-${esc(ap.tier)}">${esc(TIER[ap.tier] || ap.tier)}</span><span class="small mut">${esc(p.country || '')}</span></div>
+        <h2 class="pname">${esc(p.player_name || 'Player')}</h2>
+        <div class="small mut">Base price <b class="tx">${cr(ap.base_price_cr)}</b> · Lot #${ap.auction_order}</div>
+      </div></div>
+    <div class="ratings">${rt('Overall', p.overall_rating, true)}${rt('Batting', p.batting_rating)}${rt('Bowling', p.bowling_rating)}${rt('Fielding', p.fielding_rating)}${rt('Form', p.current_form)}${rt('Potential', p.potential)}</div>
+    <div class="bidzone">
+      <div class="timer" id="lv-timer" role="timer" aria-live="off"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><circle cx="50" cy="50" r="44" class="t-bg"/><circle cx="50" cy="50" r="44" class="t-fg" id="lv-ring" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg><div class="tnum" id="lv-tnum">15</div></div>
+      <div class="curbid ${R.flashBid ? 'flash' : ''}">
+        <div class="lbl" id="lv-phase">Current bid</div>
+        <div class="amt ${ap.current_bid_cr == null ? 'none' : ''}">${ap.current_bid_cr != null ? cr(ap.current_bid_cr) : 'No bids yet'}</div>
+        <div class="hb">${hi ? `Highest: <b class="${mine ? 'gold' : 'tx'}">${esc(hi.team_name)}${mine ? ' (You)' : ''}</b>` : `Opening bid ${cr(ap.base_price_cr)}`}</div>
+      </div></div>`;
+  R.flashBid = false;
+  updateTimer();
+}
+function phaseOf(ap) {
+  if (!ap) return 'none';
+  const now = serverNow(), s = Date.parse(ap.timer_started_at), e = Date.parse(ap.timer_ends_at);
+  return now < s ? 'break' : now < e ? 'open' : 'closed';
+}
+function updateTimer() {
+  const R = S.room; if (!R || R.rendered !== 'live') return;
+  const ap = currentAp(), phase = phaseOf(ap);
+  const num = $('#lv-tnum'), ring = $('#lv-ring'), ph = $('#lv-phase'), tw = $('#lv-timer');
+  if (ap && num && ring && ph && tw) {
+    const now = serverNow(), s = Date.parse(ap.timer_started_at), e = Date.parse(ap.timer_ends_at);
+    if (phase === 'break') {
+      num.textContent = String(Math.max(1, Math.ceil((s - now) / 1000)));
+      ring.style.strokeDashoffset = '0'; tw.classList.add('brk'); tw.classList.remove('low'); ph.textContent = 'Bidding opens in';
+    } else {
+      const left = Math.max(0, e - now);
+      num.textContent = String(Math.ceil(left / 1000));
+      ring.style.strokeDashoffset = String(100 - (left / Math.max(1, e - s)) * 100);
+      tw.classList.remove('brk'); tw.classList.toggle('low', left > 0 && left <= 5000);
+      ph.textContent = phase === 'open' ? 'Current bid' : 'Time up — resolving…';
+    }
+  }
+  if (phase !== R.phase) { R.phase = phase; renderActions(); }
+}
+function renderActions() {
+  const R = S.room, el = $('#lv-actions'); if (!el) return;
+  const ap = currentAp(), team = R.teams.get(R.myTeamId);
+  if (!ap || !team) { el.innerHTML = ''; return; }
+  const p = S.players.get(ap.player_id) || {}, phase = phaseOf(ap);
+  const skipped = R.skips.some(s => s.team_id === team.id), highest = ap.highest_team_id === team.id;
+  const full = Number(team.squad_count) >= SQUAD_SIZE;
+  const opts = quickBidOptions(ap.base_price_cr, ap.current_bid_cr, R.auction.max_player_price_cr);
+  const reserve = minPendingBase();
+  const btns = opts.map(v => {
+    const why = blockReason(team, p.role, v, reserve);
+    const dis = phase !== 'open' || skipped || highest || !!why || R.bidding;
+    return `<button class="btn btn-gold qbid" data-action="bid" data-amount="${v}" ${dis ? 'disabled' : ''} aria-label="Bid ${cr(v)}">${cr(v)}</button>`;
+  }).join('');
+  let note = '';
+  if (full) note = 'Your squad is complete (16/16).';
+  else if (skipped) note = 'You skipped this player — waiting for the result.';
+  else if (highest) note = 'You are the highest bidder.';
+  else if (!opts.length) note = 'Bid is at the ₹5.00 Cr ceiling.';
+  else if (phase === 'break') note = 'Bidding opens in a moment.';
+  else if (phase === 'closed') note = 'Time up — resolving…';
+  else { const why = blockReason(team, p.role, opts[0], reserve); if (why) note = MSG[why]; }
+  const skipDis = skipped || highest || full || phase === 'closed';
+  el.innerHTML = `<div class="qbids">${btns || '<div class="maxed">₹5.00 Cr ceiling reached</div>'}</div>
+    <div class="act-row"><div class="act-note" role="status">${esc(note)}</div>
+    <button class="btn btn-sm btn-ghost" data-action="skip" ${skipDis ? 'disabled' : ''}>${skipped ? 'Skipped' : 'Skip player'}</button></div>`;
+}
+function roleChips(t) {
+  return `<div class="rolechips">${ROLES.map(r => { const c = Number(t[r.key]) || 0; const cls = c < r.min ? 'need' : c >= r.max ? 'full' : 'okk';
+    return `<div class="rc ${cls}" title="${r.role}: min ${r.min}, max ${r.max}"><small>${r.short}</small><b>${c}</b><small>${r.min}–${r.max}</small></div>`; }).join('')}</div>`;
+}
+function renderMine() {
+  const R = S.room, el = $('#lv-mine'); if (!el) return;
+  const t = R.teams.get(R.myTeamId); if (!t) { el.innerHTML = '<h3>My team</h3><div class="dim small">You are watching this auction.</div>'; return; }
+  const sq = R.squads.filter(s => s.team_id === t.id);
+  const needs = ROLES.filter(r => (Number(t[r.key]) || 0) < r.min).map(r => `${r.min - (Number(t[r.key]) || 0)} ${r.short}`);
+  el.innerHTML = `<h3>My team</h3><div class="teamname">${esc(t.team_name)}</div>
+    <div class="kpis"><div><span>Purse left</span><b class="gold">${cr(t.remaining_purse_cr)}</b></div><div><span>Squad</span><b>${t.squad_count}/16</b></div></div>
+    ${roleChips(t)}
+    <div class="tiny ${needs.length ? 'mut' : 'okc'}" style="margin-top:8px">${needs.length ? 'Still need: ' + needs.join(', ') : 'All role minimums met.'}</div>
+    <div class="mini-sq">${sq.length ? sq.map(s => { const p = S.players.get(s.player_id) || {}; const m = roleMeta(p.role);
+      return `<div class="ms"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span><b>${cr(s.purchase_price_cr)}</b></div>`; }).join('') : '<div class="dim small">No players bought yet.</div>'}</div>`;
+}
+function renderTeams() {
+  const R = S.room, el = $('#lv-teams'); if (!el) return;
+  const ap = currentAp(), list = [...R.teams.values()].sort((a, b) => a.slot_number - b.slot_number);
+  el.innerHTML = `<h3>Teams</h3>${list.map(t => `<div class="trow ${ap && ap.highest_team_id === t.id ? 'lead' : ''} ${t.id === R.myTeamId ? 'me' : ''}"><span class="grow ell"><b>${esc(t.team_name)}</b>${t.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}</span><span class="tiny mut">${t.squad_count}/16</span><b class="small" style="min-width:86px;text-align:right">${cr(t.remaining_purse_cr)}</b></div>`).join('')}`;
+}
+function renderFeed() {
+  const R = S.room, el = $('#lv-feed'); if (!el) return;
+  const recent = [...R.aps.values()].filter(a => a.status === 'sold' || a.status === 'unsold').sort((a, b) => Date.parse(b.resolved_at) - Date.parse(a.resolved_at)).slice(0, 8);
+  el.innerHTML = `<h3>Live activity</h3><div class="feed">${R.feed.length ? R.feed.slice(0, 20).map(f => `<div class="fe">${f.html}</div>`).join('') : '<div class="dim small">Bids and skips appear here.</div>'}</div>
+    <h3 class="mt">Recent results</h3>${recent.length ? recent.map(a => { const p = S.players.get(a.player_id) || {}, tm = R.teams.get(a.sold_team_id), m = roleMeta(p.role);
+      return `<div class="nx"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span>${a.status === 'sold' ? `<span class="tiny mut ell" style="max-width:90px">${esc((tm && (tm.short_name || tm.team_name)) || '')}</span><b class="gold">${cr(a.sold_price_cr)}</b>` : '<span class="dim tiny">UNSOLD</span>'}</div>`; }).join('') : '<div class="dim small">No results yet.</div>'}`;
+}
+function renderNext() {
+  const R = S.room, el = $('#lv-next'); if (!el) return;
+  const next = [...R.aps.values()].filter(a => a.status === 'pending').sort((a, b) => a.auction_order - b.auction_order).slice(0, 4);
+  el.innerHTML = `<h3>Up next</h3>${next.length ? next.map(a => { const p = S.players.get(a.player_id) || {}, m = roleMeta(p.role);
+    return `<div class="nx"><span class="badge r-${m.cls}">${m.short}</span><span class="grow ell">${esc(p.player_name)}</span><span class="tiny mut">OVR ${p.overall_rating ?? '—'}</span><b class="small">${cr(a.base_price_cr)}</b></div>`; }).join('') : '<div class="dim small">This is the last player in the pool.</div>'}`;
+}
+function renderProgress() {
+  const R = S.room, A = R.auction, tot = Number(A.players_total) || 0, done = Number(A.players_resolved) || 0, ap = currentAp();
+  const bar = $('#lv-prog > i'); if (bar) bar.style.width = (tot ? done / tot * 100 : 0) + '%';
+  const c = $('#lv-count'); if (c) c.textContent = `Lot ${ap ? ap.auction_order : done} of ${tot} · ${R.squads.length} sold`;
+}
+function pushFeed(html) { const R = S.room; if (!R) return; R.feed.unshift({ html, ts: Date.now() }); if (R.feed.length > 40) R.feed.length = 40; }
+function showResultOverlay(row) {
+  const R = S.room; if (!R || R.rendered !== 'live') return;
+  const p = S.players.get(row.player_id) || {}, tm = R.teams.get(row.sold_team_id), ov = $('#overlay');
+  const mine = row.sold_team_id && row.sold_team_id === R.myTeamId;
+  ov.innerHTML = row.status === 'sold'
+    ? `<div><div class="stamp">SOLD</div><div class="ov-name">${esc(p.player_name)}</div><div class="ov-sub">to <b class="${mine ? 'gold' : 'tx'}">${esc((tm && tm.team_name) || '')}${mine ? ' (You)' : ''}</b> for <b class="gold">${cr(row.sold_price_cr)}</b></div></div>`
+    : `<div><div class="stamp">UNSOLD</div><div class="ov-name">${esc(p.player_name)}</div><div class="ov-sub">No valid bids</div></div>`;
+  ov.className = 'overlay show ' + row.status;
+  clearTimeout(S.ovTimer); S.ovTimer = setTimeout(() => { ov.className = 'overlay'; }, PREFS.reduceMotion ? 1400 : 2300);
+  if (mine && PREFS.haptics && navigator.vibrate) navigator.vibrate([30, 40, 30]);
+}
+/* Server is authoritative: the client only nudges the idempotent tick (also works without pg_cron). */
+async function liveHeartbeat() {
+  const R = S.room; if (!R || R.rendered !== 'live' || R.auction.status !== 'live' || R.ticking) return;
+  const ap = currentAp(), now = serverNow(), ends = ap ? Date.parse(ap.timer_ends_at) : 0, due = !ap || now >= ends;
+  const since = Date.now() - (R.lastTick || 0);
+  if ((!due && since < 1500) || (due && since < 700)) return;
+  R.ticking = true; R.lastTick = Date.now();
+  try { await rpc('auction_tick', { p_auction_id: R.id }); } catch (e) { log('tick', e); }
+  finally { R.ticking = false; }
+  if (ap && now > ends + 3500 && Date.now() - (R.lastReload || 0) > 4000 && currentAp() === ap) { R.lastReload = Date.now(); reloadRoom(); }
+}
+
+/* ---------- realtime handlers ---------- */
+function onAuctionRow(p) {
+  const R = S.room; if (!R || !p.new || p.new.id !== R.id) return;
+  const prevStatus = R.auction.status, prevCur = R.auction.current_auction_player_id;
+  R.auction = Object.assign({}, R.auction, p.new);
+  if (R.auction.status !== prevStatus) { reloadRoom(); return; }
+  if (R.auction.status === 'live') {
+    if (prevCur !== R.auction.current_auction_player_id) { R.skips = []; R.phase = null; if (!R.aps.get(R.auction.current_auction_player_id)) reloadRoom(); }
+    scheduleLive();
+  } else if (R.auction.status === 'lobby') debouncedReload();
+}
+function onApRow(p) {
+  const R = S.room, row = p.new; if (!R || !row || !row.id || row.auction_id !== R.id) return;
+  const old = R.aps.get(row.id); R.aps.set(row.id, row);
+  if (R.rendered !== 'live') return;
+  if (row.status === 'current') {
+    if (R.auction.current_auction_player_id !== row.id) { R.auction.current_auction_player_id = row.id; R.skips = []; R.phase = null; }
+    if (old && Number(row.bid_count) > Number(old.bid_count || 0) && row.highest_team_id !== R.myTeamId) {
+      const tm = R.teams.get(row.highest_team_id);
+      pushFeed(`<b>${esc((tm && (tm.short_name || tm.team_name)) || 'A team')}</b> bid ${cr(row.current_bid_cr)}`);
+    }
+    if (!old || Number(row.bid_count) !== Number(old.bid_count || 0)) R.flashBid = true;
+    scheduleLive();
+  } else if ((row.status === 'sold' || row.status === 'unsold') && old && old.status === 'current') {
+    const pl = S.players.get(row.player_id) || {}, tm = R.teams.get(row.sold_team_id);
+    if (row.status === 'sold') {
+      if (!R.squads.some(s => s.auction_player_id === row.id)) R.squads.push({ team_id: row.sold_team_id, player_id: row.player_id, auction_player_id: row.id, purchase_price_cr: row.sold_price_cr, role: pl.role });
+      pushFeed(`<b class="gold">SOLD</b> ${esc(pl.player_name)} → ${esc((tm && tm.team_name) || '')} · ${cr(row.sold_price_cr)}`);
+    } else pushFeed(`<b class="dim">UNSOLD</b> ${esc(pl.player_name)}`);
+    showResultOverlay(row); scheduleLive();
+  } else scheduleLive();
+}
+function onTeamRow(p) {
+  const R = S.room; if (!R) return;
+  if (p.eventType === 'DELETE') { const id = p.old && p.old.id; if (id && R.teams.has(id)) { R.teams.delete(id); debouncedReload(); } return; }
+  const row = p.new; if (!row || row.auction_id !== R.id) return;
+  R.teams.set(row.id, row);
+  if (R.rendered === 'live') scheduleLive(); else if (R.rendered === 'lobby') debouncedReload();
+}
+function onSkip(p) {
+  const R = S.room, s = p.new; if (!R || !s || s.auction_id !== R.id) return;
+  if (s.auction_player_id !== R.auction.current_auction_player_id) return;
+  if (!R.skips.some(x => x.team_id === s.team_id)) R.skips.push(s);
+  if (s.team_id !== R.myTeamId) {
+    const tm = R.teams.get(s.team_id), nm = memberName(s.user_id) || (tm && tm.team_name) || 'A player';
+    toast(`${nm} wants to skip this player.`, 'info', 3000);
+    pushFeed(`${esc(nm)} wants to skip this player.`);
+  }
+  scheduleLive();
+}
+
+/* ---------- live actions ---------- */
+ACTIONS.bid = async el => {
+  const R = S.room, ap = currentAp(); if (!R || !ap || R.bidding) return;
+  const amount = Number(el.dataset.amount);
+  R.bidding = true; $$('.qbid').forEach(b => { b.disabled = true; });
+  try {
+    const res = await rpc('place_bid', { p_auction_id: R.id, p_auction_player_id: ap.id, p_amount_cr: amount });
+    if (res && res.ok) {
+      const cur = R.aps.get(ap.id);
+      if (cur && Number(res.bid_count) >= Number(cur.bid_count || 0)) R.aps.set(ap.id, Object.assign({}, cur, { current_bid_cr: res.current_bid_cr, highest_team_id: res.highest_team_id, bid_count: res.bid_count, last_bid_at: res.server_time }));
+      pushFeed(`<b class="gold">You</b> bid ${cr(res.current_bid_cr)}`); R.flashBid = true;
+      if (PREFS.haptics && navigator.vibrate) navigator.vibrate(18);
+    } else toast(MSG[res && res.code] || 'Bid not accepted.', 'warn');
+  } catch (e) { toast(friendly(e), 'error'); }
+  finally { R.bidding = false; scheduleLive(); }
+};
+ACTIONS.skip = async () => {
+  const R = S.room, ap = currentAp(); if (!R || !ap) return;
+  const res = await rpc('skip_player', { p_auction_id: R.id, p_auction_player_id: ap.id });
+  if (res && res.ok) { if (!R.skips.some(s => s.team_id === R.myTeamId)) R.skips.push({ team_id: R.myTeamId, user_id: S.session.user.id }); toast('Skipped. Bidding continues for the others.', 'ok'); }
+  else toast(MSG[res && res.code] || 'Could not skip.', 'warn');
+  scheduleLive();
+};
+ACTIONS['live-tab'] = el => {
+  const R = S.room; if (!R) return; R.tab = el.dataset.tab;
+  const lv = $('.live'); if (lv) lv.dataset.tab = R.tab;
+  $$('.live-tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === R.tab)));
+};
+
+/* ---------- RESULTS ---------- */
+function scoreBars(r) {
+  const rows = [['Squad Strength', r.squad_strength, 50], ['Squad Balance', r.squad_balance, 25], ['Value for Money', r.value_for_money, 15], ['Budget Management', r.budget_management, 10]];
+  return `<div class="bars">${rows.map(([l, v, m]) => `<div class="bar"><span class="small">${l}</span><i><u style="width:${Math.max(0, Math.min(100, Number(v) / m * 100))}%"></u></i><b>${Number(v).toFixed(1)}/${m}</b></div>`).join('')}</div>`;
+}
+function renderResults() {
+  const R = S.room, A = R.auction;
+  const res = [...R.results].sort((a, b) => a.final_rank - b.final_rank);
+  if (!res.length) {
+    setView(`<div class="wrap narrow">${loadingHTML('Calculating final scores…')}</div>`);
+    if (R.resTries++ < 5) setTimeout(() => { if (S.room === R) reloadRoom(); }, 1500);
+    return;
+  }
+  const win = res[0], wt = R.teams.get(win.team_id) || {}, mine = res.find(x => x.team_id === R.myTeamId);
+  if (!R.view) R.view = { team: R.myTeamId || win.team_id, filter: 'All' };
+  setView(`<div class="wrap">
+    <div class="row between wrap-row"><button class="btn btn-ghost btn-sm" data-action="nav" data-to="my-auctions" data-busy="no">← My Auctions</button><span class="small mut">${esc(A.name)} · ${dateFmt(A.completed_at)}</span></div>
+    <section class="card glow winner mt">
+      <div class="trophy" aria-hidden="true">🏆</div><div class="kicker">Auction winner</div>
+      <h1>${esc(wt.team_name || 'Winner')}</h1>
+      <div class="score-big">${Number(win.total_score).toFixed(2)}<span class="mut" style="font-size:22px"> / 100</span></div>
+      <div class="small mut">${wt.team_type === 'bot' ? 'BOT team' : esc(memberName(wt.owner_user_id))}${win.squad_complete ? ' · 16/16 squad' : ' · Incomplete squad'}</div>
+    </section>
+    ${mine ? `<div class="card mt"><div class="row between wrap-row"><div><div class="kicker">Your finish</div><div class="teamname" style="margin:4px 0 0">${esc((R.teams.get(mine.team_id) || {}).team_name)}</div></div>
+      <div class="center"><div class="score-big" style="font-size:36px">#${mine.final_rank}<span class="mut" style="font-size:18px"> of ${res.length}</span></div><div class="small mut">${Number(mine.total_score).toFixed(2)} pts</div></div></div>${scoreBars(mine)}</div>` : ''}
+    <h2 class="h2">Leaderboard</h2>
+    <div class="lb"><div class="lbr head"><span>#</span><span>Team</span><span>Total</span><span class="c-extra">Strength</span><span class="c-extra">Balance</span><span class="c-extra">Value</span><span class="c-extra">Budget</span><span class="c-extra">Squad</span></div>
+      ${res.map(x => { const tm = R.teams.get(x.team_id) || {};
+        return `<div class="lbr ${x.final_rank === 1 ? 'first' : ''} ${x.team_id === R.myTeamId ? 'me' : ''}"><span class="rank">${x.final_rank}</span><span class="ell"><b>${esc(tm.team_name)}</b>${tm.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}${x.team_id === R.myTeamId ? ' <span class="tiny gold">YOU</span>' : ''}</span><span class="tot">${Number(x.total_score).toFixed(1)}</span><span class="c-extra">${Number(x.squad_strength).toFixed(1)}/50</span><span class="c-extra">${Number(x.squad_balance).toFixed(1)}/25</span><span class="c-extra">${Number(x.value_for_money).toFixed(1)}/15</span><span class="c-extra">${Number(x.budget_management).toFixed(1)}/10</span><span class="c-extra">${tm.squad_count ?? 0}/16</span></div>`; }).join('')}
+    </div>
+    <h2 class="h2">Squads</h2>
+    <div class="chips" role="group" aria-label="Choose team">${res.map(x => { const tm = R.teams.get(x.team_id) || {}; return `<button class="chip" data-action="res-team" data-id="${x.team_id}" data-busy="no" aria-pressed="${R.view.team === x.team_id}">${esc(tm.short_name || tm.team_name)}</button>`; }).join('')}</div>
+    <div id="res-team" class="mt"></div>
+  </div>`);
+  renderResTeam();
+}
+function renderResTeam() {
+  const R = S.room, el = $('#res-team'); if (!el || !R) return;
+  const t = R.teams.get(R.view.team); if (!t) { el.innerHTML = ''; return; }
+  const r = R.results.find(x => x.team_id === t.id), max = Number(R.auction.max_player_price_cr) || 5;
+  const sq = R.squads.filter(s => s.team_id === t.id).map(s => { const p = S.players.get(s.player_id) || {}; return { p, price: Number(s.purchase_price_cr), fv: fairValue(p.overall_rating, p.base_price_cr, max) }; })
+    .sort((a, b) => (b.p.overall_rating || 0) - (a.p.overall_rating || 0));
+  const avg = k => sq.length ? (sq.reduce((s, x) => s + Number(x.p[k] || 0), 0) / sq.length).toFixed(1) : '—';
+  const best = maxBy(sq, x => x.fv / x.price), exp = maxBy(sq, x => x.price), barg = maxBy(sq, x => x.fv - x.price);
+  const shown = R.view.filter === 'All' ? sq : sq.filter(x => roleMeta(x.p.role).short === R.view.filter);
+  const hl = (label, x, sub) => x ? `<div class="hl"><span>${label}</span><b class="ell">${esc(x.p.player_name)}</b><div class="small mut">${sub(x)}</div></div>` : '';
+  el.innerHTML = `<div class="card"><div class="row between wrap-row"><div class="teamname" style="margin:0">${esc(t.team_name)}${t.team_type === 'bot' ? ' <span class="tiny dim">BOT</span>' : ''}</div>${r ? `<span class="pill">Rank #${r.final_rank} · ${Number(r.total_score).toFixed(2)} pts</span>` : ''}</div>
+    ${r ? scoreBars(r) : ''}
+    <div class="stats mt">
+      <div class="stat"><span>Starting purse</span><b>${cr(t.starting_purse_cr)}</b></div>
+      <div class="stat"><span>Total spent</span><b>${cr(t.spent_cr)}</b></div>
+      <div class="stat"><span>Remaining</span><b class="gold">${cr(t.remaining_purse_cr)}</b></div>
+      <div class="stat"><span>Squad</span><b>${t.squad_count}/16</b></div>
+      <div class="stat"><span>Avg overall</span><b>${avg('overall_rating')}</b></div>
+      <div class="stat"><span>Avg form</span><b>${avg('current_form')}</b></div>
+      <div class="stat"><span>Avg potential</span><b>${avg('potential')}</b></div>
+      <div class="stat"><span>Roles</span><b class="small" style="font-family:var(--body)">${ROLES.map(x => `${x.short} ${t[x.key]}`).join(' · ')}</b></div>
+    </div>
+    ${sq.length ? `<div class="hls mt">${hl('Best value buy', best, x => `${cr(x.price)} · fair value ${cr(x.fv)}`)}${hl('Most expensive buy', exp, x => cr(x.price))}${hl('Biggest bargain', barg, x => `${cr(Math.max(x.fv - x.price, 0))} below fair value`)}</div>` : ''}
+    <div class="chips mt" role="group" aria-label="Filter by role">${['All', 'WK', 'BAT', 'AR', 'BOWL'].map(f => `<button class="chip" data-action="res-filter" data-f="${f}" data-busy="no" aria-pressed="${R.view.filter === f}">${f}</button>`).join('')}</div>
+    <div class="plist mt">${shown.length ? shown.map(x => { const m = roleMeta(x.p.role);
+      return `<div class="pl"><span class="ov">${x.p.overall_rating ?? '—'}</span><div class="grow"><b class="ell" style="display:block">${esc(x.p.player_name)}</b><div class="tiny mut"><span class="r-${m.cls}">${m.short}</span> · ${esc(x.p.country)} · Form ${x.p.current_form} · Pot ${x.p.potential}</div></div><b class="small">${cr(x.price)}</b></div>`; }).join('') : '<div class="empty">No players in this filter.</div>'}</div>
+  </div>`;
+}
+ACTIONS['res-team'] = el => { S.room.view.team = el.dataset.id; $$('[data-action=res-team]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === el.dataset.id))); renderResTeam(); };
+ACTIONS['res-filter'] = el => { S.room.view.filter = el.dataset.f; renderResTeam(); };
+
+/* ===================== FRIENDS ===================== */
+async function viewFriends(r, t) {
+  setView(`<div class="wrap narrow"><h1 class="h1">Friends</h1>
+    <div class="card mt"><label class="field" style="margin:0"><span>Find players by display name</span><input class="input" type="search" placeholder="Search…" data-input="friend-search" autocomplete="off" maxlength="40"></label><div id="fr-results" class="list mt"></div></div>
+    <div id="fr-reqs"></div>
+    <h2 class="h2">Your friends</h2><div id="fr-list" class="list">${loadingHTML()}</div></div>`);
+  await loadFriendsData(t);
+}
+async function loadFriendsData(t) {
+  const me = S.session.user.id;
+  const [friends, reqs] = await Promise.all([rpc('get_my_friends'), sb.from('friend_requests').select('id,sender_id,receiver_id,created_at').eq('status', 'pending').order('created_at', { ascending: false })]);
+  if (reqs.error) throw reqs.error;
+  if (!alive(t) || !S.route || S.route.name !== 'friends') return;
+  const rows = reqs.data || [];
+  const ids = [...new Set(rows.map(q => q.sender_id === me ? q.receiver_id : q.sender_id))];
+  let prof = new Map();
+  if (ids.length) { const { data, error } = await sb.from('profiles').select('id,display_name,avatar_url').in('id', ids); if (error) throw error; prof = new Map((data || []).map(p => [p.id, p])); }
+  const inc = rows.filter(q => q.receiver_id === me), out = rows.filter(q => q.sender_id === me);
+  const reqItem = (q, incoming) => { const p = prof.get(incoming ? q.sender_id : q.receiver_id) || {};
+    return `<div class="item">${avatarHTML(p.display_name, p.avatar_url)}<div class="grow"><b class="ell" style="display:block">${esc(p.display_name || 'Player')}</b><div class="tiny mut">${incoming ? 'Wants to be friends' : 'Request sent'} · ${timeAgo(q.created_at)}</div></div>${incoming
+      ? `<button class="btn btn-sm btn-gold" data-action="fr-respond" data-id="${q.id}" data-accept="1">Accept</button><button class="btn btn-sm btn-ghost" data-action="fr-respond" data-id="${q.id}" data-accept="0">Decline</button>`
+      : `<button class="btn btn-sm btn-ghost" data-action="fr-cancel" data-id="${q.id}">Cancel</button>`}</div>`; };
+  const rq = $('#fr-reqs'), fl = $('#fr-list'); if (!rq || !fl) return;
+  rq.innerHTML = (inc.length ? `<h2 class="h2">Friend requests</h2><div class="list">${inc.map(q => reqItem(q, true)).join('')}</div>` : '') + (out.length ? `<h2 class="h2">Sent requests</h2><div class="list">${out.map(q => reqItem(q, false)).join('')}</div>` : '');
+  fl.innerHTML = (friends || []).length ? friends.map(f => `<div class="item">${avatarHTML(f.display_name, f.avatar_url, f.is_online)}<div class="grow"><b class="ell" style="display:block">${esc(f.display_name)}</b><div class="tiny ${f.is_online ? 'okc' : 'mut'}">${f.is_online ? 'Online' : 'Offline · last seen ' + timeAgo(f.last_seen_at)}</div></div><button class="btn btn-sm btn-ghost" data-action="fr-remove" data-id="${f.friend_id}" data-name="${esc(f.display_name)}">Remove</button></div>`).join('')
+    : '<div class="empty">No friends yet. Search above to add players.</div>';
+}
+function relBtn(u) {
+  if (u.relationship === 'friend') return '<span class="pill okc">Friends</span>';
+  if (u.relationship === 'request_sent') return '<span class="pill">Requested</span>';
+  if (u.relationship === 'request_received') return '<span class="pill gold">Respond below</span>';
+  return `<button class="btn btn-sm btn-pri" data-action="fr-add" data-id="${u.user_id}">Add friend</button>`;
+}
+let searchSeq = 0;
+INPUTS['friend-search'] = debounce(async el => {
+  const q = el.value.trim(), box = $('#fr-results'); if (!box) return;
+  const seq = ++searchSeq;
+  if (q.length < 2) { box.innerHTML = q.length ? '<div class="hint">Type at least 2 characters.</div>' : ''; return; }
+  try {
+    const rows = (await rpc('search_users', { p_query: q, p_limit: 20 })) || [];
+    if (seq !== searchSeq || !$('#fr-results')) return;
+    box.innerHTML = rows.length ? rows.map(u => `<div class="item">${avatarHTML(u.display_name, u.avatar_url, u.is_online)}<div class="grow"><b class="ell" style="display:block">${esc(u.display_name)}</b><div class="tiny mut">${u.is_online ? 'Online' : 'Offline'}</div></div>${relBtn(u)}</div>`).join('') : '<div class="empty small">No players found.</div>';
+  } catch (e) { if (seq === searchSeq && $('#fr-results')) box.innerHTML = `<div class="empty small">${esc(friendly(e))}</div>`; }
+}, 350);
+async function refreshFriends() {
+  if (!S.route || S.route.name !== 'friends') return;
+  await loadFriendsData();
+  const inp = $('[data-input=friend-search]'); if (inp && inp.value.trim().length >= 2) INPUTS['friend-search'](inp);
+}
+ACTIONS['fr-add'] = async el => {
+  const res = await rpc('send_friend_request', { p_receiver_id: el.dataset.id });
+  const msg = { REQUEST_SENT: 'Friend request sent.', ACCEPTED_THEIR_REQUEST: 'You are now friends!', ALREADY_FRIENDS: 'You are already friends.', REQUEST_ALREADY_PENDING: 'A request is already pending.' };
+  toast(msg[res && res.code] || 'Done.', res && res.ok ? 'ok' : 'info'); await refreshFriends();
+};
+ACTIONS['fr-respond'] = async el => { await rpc('respond_friend_request', { p_request_id: el.dataset.id, p_accept: el.dataset.accept === '1' }); toast(el.dataset.accept === '1' ? 'Friend added.' : 'Request declined.', 'ok'); await refreshFriends(); };
+ACTIONS['fr-cancel'] = async el => { await rpc('cancel_friend_request', { p_request_id: el.dataset.id }); toast('Request cancelled.', 'ok'); await refreshFriends(); };
+ACTIONS['fr-remove'] = async el => { if (!await confirmBox(`Remove ${el.dataset.name} from your friends?`, 'Remove', true)) return; await rpc('remove_friend', { p_friend_id: el.dataset.id }); toast('Friend removed.', 'ok'); await refreshFriends(); };
+
+/* ===================== NOTIFICATIONS ===================== */
+async function viewNotifications(r, t) {
+  setView(`<div class="wrap narrow"><h1 class="h1">Notifications</h1><div id="nt-list" class="list mt">${loadingHTML()}</div></div>`);
+  await loadNotifications(t);
+}
+async function loadNotifications(t) {
+  const { data, error } = await sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(60);
+  if (error) throw error;
+  if (!alive(t) || !S.route || S.route.name !== 'notifications') return;
+  const list = data || [];
+  const invIds = list.filter(n => n.type === 'auction_invite' && n.related_entity_id).map(n => n.related_entity_id);
+  const frIds = list.filter(n => n.type === 'friend_request' && n.related_entity_id).map(n => n.related_entity_id);
+  const [inv, fr] = await Promise.all([
+    invIds.length ? sb.from('auction_invitations').select('id,status').in('id', invIds) : Promise.resolve({ data: [] }),
+    frIds.length ? sb.from('friend_requests').select('id,status').in('id', frIds) : Promise.resolve({ data: [] })]);
+  const pend = new Set([...((inv && inv.data) || []), ...((fr && fr.data) || [])].filter(x => x.status === 'pending').map(x => x.id));
+  const icon = { friend_request: '🤝', friend_accepted: '✅', auction_invite: '📨', auction_invite_declined: '🚫', auction_started: '🔴', auction_completed: '🏆', auction_cancelled: '⛔', system: '🔔' };
+  const box = $('#nt-list'); if (!box) return;
+  box.innerHTML = list.length ? list.map(n => `<div class="item ${n.is_read ? '' : 'unread'}" style="align-items:flex-start"><span class="av" aria-hidden="true">${icon[n.type] || '🔔'}</span><div class="grow"><b>${esc(n.title)}</b><div class="small mut">${esc(n.message)}</div><div class="tiny dim">${timeAgo(n.created_at)}</div>${ntActions(n, pend)}</div><button class="btn btn-sm btn-ghost" data-action="nt-del" data-id="${n.id}" aria-label="Delete notification">✕</button></div>`).join('')
+    : '<div class="empty">You are all caught up.</div>';
+  if (list.some(n => !n.is_read)) rpc('mark_notifications_read', { p_ids: null }).then(() => { S.unread = 0; updateBell(); }).catch(e => log(e));
+}
+function ntActions(n, pend) {
+  if (n.type === 'friend_request' && pend.has(n.related_entity_id)) return `<div class="row mt8"><button class="btn btn-sm btn-gold" data-action="nt-friend" data-id="${n.related_entity_id}" data-accept="1">Accept</button><button class="btn btn-sm btn-ghost" data-action="nt-friend" data-id="${n.related_entity_id}" data-accept="0">Decline</button></div>`;
+  if (n.type === 'auction_invite' && pend.has(n.related_entity_id)) return `<form class="mt8" data-form="invite-accept" novalidate><div class="form-err" role="alert"></div><input type="hidden" name="inv" value="${n.related_entity_id}"><div class="grid2"><input class="input" name="team_name" placeholder="Your team name" required minlength="2" maxlength="30" aria-label="Team name"><input class="input" name="short_name" placeholder="Short (optional)" maxlength="5" aria-label="Short name"></div><div class="row mt8"><button class="btn btn-sm btn-gold" type="submit">Accept & join lobby</button><button class="btn btn-sm btn-ghost" type="button" data-action="inv-decline" data-id="${n.related_entity_id}">Decline</button></div></form>`;
+  if (n.auction_id && ['auction_started', 'auction_completed', 'auction_invite_declined'].includes(n.type)) return `<div class="mt8"><button class="btn btn-sm" data-action="nav" data-to="a/${n.auction_id}" data-busy="no">Open auction</button></div>`;
+  return '';
+}
+ACTIONS['nt-friend'] = async el => { await rpc('respond_friend_request', { p_request_id: el.dataset.id, p_accept: el.dataset.accept === '1' }); toast(el.dataset.accept === '1' ? 'Friend added.' : 'Request declined.', 'ok'); await loadNotifications(); };
+ACTIONS['inv-decline'] = async el => { await rpc('respond_auction_invitation', { p_invitation_id: el.dataset.id, p_accept: false }); toast('Invitation declined.', 'ok'); await loadNotifications(); };
+ACTIONS['nt-del'] = async el => { const { error } = await sb.from('notifications').delete().eq('id', el.dataset.id); if (error) throw error; const it = el.closest('.item'); if (it) it.remove(); };
+FORMS['invite-accept'] = async d => {
+  const team = (d.team_name || '').trim(), short = (d.short_name || '').trim().toUpperCase();
+  if (team.length < 2) throw uerr('Enter your team name (2–30 characters).');
+  if (short && !/^[A-Z0-9]{2,5}$/.test(short)) throw uerr('Short name must be 2–5 letters or digits.');
+  const res = await rpc('respond_auction_invitation', { p_invitation_id: d.inv, p_accept: true, p_team_name: team, p_short_name: short || null });
+  go('a/' + res.auction_id);
+};
+
+/* ===================== MY AUCTIONS / PROFILE / SETTINGS ===================== */
+async function viewMyAuctions(r, t) {
+  setView(`<div class="wrap"><div class="row between wrap-row"><h1 class="h1">My Auctions</h1><button class="btn btn-gold" data-action="nav" data-to="play" data-busy="no">▶ New auction</button></div><div id="ma">${loadingHTML()}</div></div>`);
+  const list = (await rpc('get_my_auctions')) || []; if (!alive(t)) return;
+  const act = list.filter(a => a.status === 'live' || a.status === 'lobby'), done = list.filter(a => a.status === 'completed' || a.status === 'cancelled');
+  $('#ma').innerHTML = `<h2 class="h2">Active</h2>${act.length ? `<div class="list">${act.map(auctionCard).join('')}</div>` : '<div class="empty">No active auctions. Start one from Play.</div>'}
+    <h2 class="h2">Completed</h2>${done.length ? `<div class="list">${done.map(auctionCard).join('')}</div>` : '<div class="empty">No completed auctions yet.</div>'}`;
+}
+async function viewProfile(r, t) {
+  const p = S.profile || {};
+  setView(`<div class="wrap narrow"><h1 class="h1">Profile</h1>
+    <div class="card mt"><div class="row">${avatarHTML(p.display_name, p.avatar_url, null, 'lg')}<div class="grow"><div class="teamname" style="margin:0">${esc(p.display_name || 'Player')}</div><div class="small mut ell">${esc(S.session.user.email)}</div></div></div>
+      <div class="stats mt" id="pf-stats">${['Auctions', 'Completed', 'Wins', 'Best score'].map(x => `<div class="stat"><span>${x}</span><b>—</b></div>`).join('')}</div></div>
+    <form class="card mt" data-form="profile" novalidate><h2 class="h2" style="margin-top:0">Edit profile</h2><div class="form-err" role="alert"></div>
+      <label class="field"><span>Display name</span><input class="input" name="display_name" required minlength="3" maxlength="24" value="${esc(p.display_name || '')}"></label>
+      <label class="field"><span>Avatar image URL (optional, https)</span><input class="input" name="avatar_url" type="url" maxlength="500" placeholder="https://…" value="${esc(p.avatar_url || '')}"></label>
+      <button class="btn btn-pri" type="submit">Save changes</button></form>
+    <button class="btn btn-bad btn-block mt" data-action="logout">Log out</button></div>`);
+  try {
+    const list = (await rpc('get_my_auctions')) || []; if (!alive(t)) return;
+    const comp = list.filter(a => a.status === 'completed'), wins = comp.filter(a => a.my_rank === 1).length;
+    const best = comp.reduce((m, a) => Math.max(m, Number(a.my_total_score) || 0), 0);
+    const el = $('#pf-stats'); if (el) el.innerHTML = `<div class="stat"><span>Auctions</span><b>${list.length}</b></div><div class="stat"><span>Completed</span><b>${comp.length}</b></div><div class="stat"><span>Wins</span><b class="gold">${wins}</b></div><div class="stat"><span>Best score</span><b>${comp.length ? best.toFixed(1) : '—'}</b></div>`;
+  } catch (e) { log(e); }
+}
+FORMS.profile = async d => {
+  const name = (d.display_name || '').trim(), url = (d.avatar_url || '').trim();
+  if (name.length < 3 || name.length > 24) throw uerr('Display name must be 3–24 characters.');
+  if (url && !/^https:\/\//i.test(url)) throw uerr('Avatar URL must start with https://');
+  const { data, error } = await sb.from('profiles').update({ display_name: name, avatar_url: url || null }).eq('id', S.session.user.id).select().single();
+  if (error) { if (error.code === '23505') throw uerr('That display name is already taken.'); throw error; }
+  S.profile = data; renderChrome(); toast('Profile saved.', 'ok'); viewProfile(S.route, S.routeToken);
+};
+function viewSettings() {
+  let host = ''; try { host = new URL(SUPABASE_URL).host; } catch (e) { host = SUPABASE_URL; }
+  const tg = (key, title, sub) => `<label class="toggle"><span><b>${title}</b><div class="small mut">${sub}</div></span><input type="checkbox" data-change="pref" data-key="${key}" ${PREFS[key] ? 'checked' : ''}></label>`;
+  setView(`<div class="wrap narrow"><h1 class="h1">Settings</h1>
+    <div class="card mt">${tg('reduceMotion', 'Reduce motion', 'Minimise animations, including SOLD / UNSOLD effects.')}${tg('haptics', 'Haptic feedback', 'Vibrate on bids and wins (supported phones).')}${tg('debug', 'Developer logs', 'Print debug information to the browser console.')}
+      <div class="toggle" style="border:0;cursor:default"><span><b>Server</b><div class="small mut ell">${esc(host)}</div></span></div></div>
+    <div class="card mt"><b>Game rules</b><ul class="small mut" style="margin:8px 0 0;padding-left:18px;line-height:1.8">
+      <li>Every team starts with ₹100 Cr. No player can cost more than ₹5 Cr.</li>
+      <li>Squads have exactly 16 players: WK 1–3, BAT 4–8, AR 2–6, BOWL 4–8.</li>
+      <li>Each player gets 15 seconds. Bids do not reset the timer.</li>
+      <li>Quick bids: first bid at base price (or +₹0.25 / +₹0.50), then +₹0.25, +₹0.50 or +₹1.00 Cr.</li>
+      <li>Skipping a player removes only your team from that player's bidding.</li>
+      <li>Final score (100): Strength 50 · Balance 25 · Value 15 · Budget 10. Complete squads rank first.</li></ul></div>
+    <button class="btn btn-bad btn-block mt" data-action="logout">Log out</button></div>`);
+}
+CHANGES.pref = el => { PREFS[el.dataset.key] = el.checked; savePrefs(); toast('Setting saved.', 'ok', 1500); };
+function viewNotFound() { setView(`<div class="wrap narrow"><div class="card center"><h1 class="h1">Page not found</h1><p class="mut">That screen doesn't exist.</p><button class="btn btn-pri" data-action="nav" data-to="home" data-busy="no">Go home</button></div></div>`); }
+function renderSetup(cdnFailed) {
+  setView(`<div class="auth-wrap"><div class="card glow" style="max-width:620px"><div class="brand" style="cursor:default"><i>₹</i>Auction Arena</div>
+    <h1 class="h1 mt">${cdnFailed ? 'Could not load Supabase' : 'Setup required'}</h1>
+    ${cdnFailed ? '<p class="mut">The Supabase library failed to load. Check your internet connection and reload.</p>'
+      : `<p class="mut">Connect this game to your Supabase project:</p><ol class="small" style="padding-left:18px;line-height:1.9"><li>Supabase Dashboard → <b>Project Settings → API Keys</b>.</li><li>Copy the <b>Project URL</b> and the <b>publishable</b> key (or legacy <b>anon</b> key).</li><li>Open <code>index.html</code>, find the <b>CONFIGURATION</b> block at the top of the script, and paste both values.</li><li>Never paste the <b>secret</b> or <b>service_role</b> key.</li></ol>`}
+    <button class="btn btn-pri mt" onclick="location.reload()">Reload</button></div></div>`);
+}
+
+/* ===================== EVENT DELEGATION (one listener each, no duplicates) ===================== */
+const VIEWS = { login: viewLogin, signup: viewSignup, forgot: viewForgot, reset: viewReset, home: viewHome, play: viewPlay, multi: viewMulti, create: viewCreate, join: viewJoin, a: viewAuctionRoom, friends: viewFriends, notifications: viewNotifications, 'my-auctions': viewMyAuctions, profile: viewProfile, settings: viewSettings };
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-action]'); if (!el) return;
+  const fn = ACTIONS[el.dataset.action]; if (!fn) return;
+  e.preventDefault();
+  if (el.disabled || el.classList.contains('busy')) return;
+  const busy = el.dataset.busy !== 'no';
+  if (busy) setBusy(el, true);
+  try { await fn(el); } catch (err) { log('action', el.dataset.action, err); toast(friendly(err), 'error'); }
+  finally { if (busy && el.isConnected) setBusy(el, false); }
+});
+document.addEventListener('submit', async e => {
+  const f = e.target.closest('form[data-form]'); if (!f) return;
+  e.preventDefault();
+  const fn = FORMS[f.dataset.form]; if (!fn) return;
+  const btn = f.querySelector('[type=submit]'); if (btn && btn.classList.contains('busy')) return;
+  const errBox = f.querySelector('.form-err'); if (errBox) errBox.textContent = '';
+  setBusy(btn, true);
+  try { await fn(Object.fromEntries(new FormData(f)), f); }
+  catch (err) { log('form', f.dataset.form, err); if (errBox && errBox.isConnected) errBox.textContent = errText(err); else toast(errText(err), 'error'); }
+  finally { if (btn && btn.isConnected) setBusy(btn, false); }
+});
+document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (el && INPUTS[el.dataset.input]) INPUTS[el.dataset.input](el, e); });
+document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (el && CHANGES[el.dataset.change]) CHANGES[el.dataset.change](el, e); });
+
+/* ===================== BOOT ===================== */
+function boot() {
+  applyPrefs();
+  const lib = window.supabase && window.supabase.createClient;
+  if (!CONFIGURED || !lib) { renderSetup(CONFIGURED && !lib); return; }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  setView(loadingHTML('Starting…'));
+  sb.auth.onAuthStateChange((event, session) => { setTimeout(() => { onAuth(event, session).catch(e => log('auth handler', e)); }, 0); });
+  window.addEventListener('hashchange', route);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    heartbeat();
+    if (S.room && S.room.auction && S.room.auction.status !== 'completed') reloadRoom();
+  });
+  window.addEventListener('online', () => { toast('Back online.', 'ok'); if (S.room) reloadRoom(); });
+  window.addEventListener('offline', () => toast('You are offline. The game will resync when you reconnect.', 'warn', 5000));
+}
+boot();
+</script>
+</body>
+</html>
